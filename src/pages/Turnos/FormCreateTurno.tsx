@@ -1,0 +1,131 @@
+import apiSijac from "@/api/sijac";
+import { useMutation } from "@tanstack/react-query";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { useForm } from "react-hook-form";
+
+interface Props {
+  id: string;
+  modal: Dispatch<SetStateAction<boolean>>;
+}
+
+interface FormData {
+  id: string;
+  full_name: string;
+  email: string;
+  cellphone: string;
+  reason: string;
+}
+
+const putAppoinment = async (payload: FormData) => {
+  const { data } = await apiSijac.put(`/appointment/create`, payload);
+  return data;
+};
+
+const FormCreateTurno: React.FC<Props> = ({ id, modal }) => {
+  const [submitted, setSubmitted] = useState(false);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: putAppoinment,
+    onSuccess: () => {
+      setSubmitted(true);
+      setTimeout(() => {
+        modal(false);
+      }, 5000);
+    },
+    onError: () => {
+      alert("Ocurrió un Error por favor intente más tarde");
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  const onSubmit = (data: FormData) => {
+    mutate({ ...data, id });
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center p-6">
+        <h2 className="text-xl font-bold text-green-600">
+          ¡Revisá tu email para confirmar el turno!
+        </h2>
+        <p className="mt-4 text-gray-700">
+          En breve se cerrará esta ventana...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 max-w-md mx-auto"
+    >
+      <div>
+        <label>Nombre Completo</label>
+        <input
+          type="text"
+          {...register("full_name", { required: true })}
+          className="border p-2 w-full"
+        />
+        {errors.full_name && <span className="text-red-500">Obligatorio</span>}
+      </div>
+
+      <div>
+        <label>Correo Electrónico</label>
+        <input
+          type="email"
+          {...register("email", { required: true })}
+          className="border p-2 w-full"
+          placeholder="sijac@gmail.com"
+        />
+        {errors.email && <span className="text-red-500">Obligatorio</span>}
+      </div>
+
+      <div>
+        <label>Numero de Teléfono</label>
+        <input
+          type="text"
+          {...register("cellphone", { required: true })}
+          className="border p-2 w-full"
+          placeholder="3871234569"
+        />
+        {errors.cellphone && <span className="text-red-500">Obligatorio</span>}
+      </div>
+
+      <div>
+        <label>Razón</label>
+        <textarea
+          {...register("reason", { required: true, maxLength: 50 })}
+          className="border p-2 w-full"
+        />
+        {errors.reason?.type === "required" && (
+          <span className="text-red-500">Obligatorio</span>
+        )}
+        {errors.reason?.type === "maxLength" && (
+          <span className="text-red-500">Máximo 50 caracteres</span>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        disabled={isPending}
+      >
+        {isPending ? "Solicitando..." : "Solicitar Turno"}
+      </button>
+
+      <p className="text-red-600 font-semibold">
+        Importante: te llegará un correo para continuar con el proceso. El turno
+        también debe ser aceptado por el profesional. Recibirás notificaciones
+        por email en cada paso.
+      </p>
+    </form>
+  );
+};
+
+export default FormCreateTurno;
