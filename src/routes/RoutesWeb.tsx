@@ -1,6 +1,8 @@
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
-import Admin from "@/pages/Admin";
+import Admin from "@/pages/Admin/Admin";
+import BlogDetails from "@/pages/BlogDetails";
+import Blogs from "@/pages/Blogs";
 import CallbackTurno from "@/pages/CallbackTurno";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -42,6 +44,18 @@ const routers = createBrowserRouter([
       ,{
         path: "/callback/:token",
         element: <CallbackTurno />,
+        errorElement: <h1>FAIL TURNOS</h1>,
+
+      }
+      ,{
+        path: "/blogs",
+        element: <Blogs />,
+        errorElement: <h1>FAIL TURNOS</h1>,
+
+      }
+      ,{
+        path: "/blog/:id",
+        element: <BlogDetails />,
         errorElement: <h1>FAIL TURNOS</h1>,
 
       }

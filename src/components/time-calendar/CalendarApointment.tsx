@@ -1,49 +1,55 @@
-import { Apointment, useAppointment } from "@/hooks/admin/useAppointment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-
 import { FaWhatsapp } from "react-icons/fa";
+import { Appointment, useAppointment } from "@/hooks/admin/useAppointment";
+
+
+const statusColors = {
+  nulo: "bg-white text-black hover:bg-blue-100",
+  pendiente: "bg-orange-500 text-white",
+  aceptado: "bg-green-500 text-white",
+  cancelado: "bg-red-500 text-white",
+  rechazado: "bg-yellow-500 text-white",
+};
 
 const Calendar: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [selectedEvent, setSelectedEvent] = useState<Apointment | null>(null);
-  const [eventStatusFilter, setEventStatusFilter] = useState<
-    "pendiente" | "aceptado" | "cancelado"
-  >("pendiente");
-  const { appointmentsData: events } = useAppointment();
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedEvent, setSelectedEvent] = useState<Appointment | null>(null);
+  const { appointmentsData: events, updateStatus, isPendingStatus } = useAppointment();
+
+  // Obtener fechas con eventos pendientes
+  const pendingDates = new Set(
+    events
+      ?.filter(event => event.state === "pendiente")
+      .map(event => event.date_get)
+  );
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
     setSelectedEvent(null);
   };
 
-  const handleStatusFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setEventStatusFilter(
-      e.target.value as "pendiente" | "aceptado" | "cancelado"
-    );
-    setSelectedEvent(null); // limpiar evento seleccionado al cambiar filtro
-  };
-
-  const compareDates = (date1: Date, date2: string) =>
-    date1.toISOString().split("T")[0] === date2;
-
-  const filteredEvents = events
-    ? events.filter(
-        (event) =>
-          selectedDate &&
-          compareDates(selectedDate, event.date_get) &&
-          event.state === eventStatusFilter
-      )
-    : [];
+  const filteredEvents = events?.filter(
+    (event) => selectedDate && event.date_get === selectedDate.toISOString().split("T")[0]
+  ) ?? [];
 
   const eventDates = new Set(events?.map((e) => e.date_get));
 
-  const handleEventSelect = (event: Apointment) => {
-    setSelectedEvent(event);
+  const handleStatusUpdate = (newState: string, reason = "sin razon") => {
+    if (!selectedEvent) return;
+    updateStatus({ appointmentId: selectedEvent.id, newState, reason });
   };
+
+  useEffect(() => {
+    if (!selectedEvent) return;
+  
+    const updatedEvent = events?.find((e) => e.id === selectedEvent.id);
+    if (updatedEvent && updatedEvent !== selectedEvent) {
+      setSelectedEvent(updatedEvent);
+    }
+  }, [events, selectedEvent]);
+  
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -51,130 +57,135 @@ const Calendar: React.FC = () => {
         selected={selectedDate}
         onDayClick={handleDateChange}
         disabled={(date) => !eventDates.has(date.toISOString().split("T")[0])}
+        modifiers={{
+          pending: (date) => pendingDates.has(date.toISOString().split("T")[0]),
+        }}
         modifiersClassNames={{
           disabled: "text-gray-400 line-through",
+          pending: "bg-orange-500 text-white rounded-full",
         }}
       />
 
-      <div>
-        <label className="block mb-1 text-sm font-medium">
-          Filtrar por estado:
-        </label>
-        <select
-          value={eventStatusFilter}
-          onChange={handleStatusFilterChange}
-          className="border border-gray-300 rounded px-3 py-1 text-sm"
-        >
-          <option value="pendiente">Pendientes</option>
-          <option value="aceptado">Aceptados</option>
-          <option value="cancelado">Cancelados</option>
-        </select>
-      </div>
 
-      {selectedDate && filteredEvents.length > 0 ? (
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">
-            Turnos para {selectedDate.toLocaleDateString()}:
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {filteredEvents.map((event) => (
-              <button
-                key={event.id}
-                onClick={() => handleEventSelect(event)}
-                className={`p-2 rounded-lg border text-sm font-medium transition ${
-                  selectedEvent?.id === event.id
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-black hover:bg-blue-100"
-                }`}
-              >
-                {event.start_time.slice(0, 5)}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="text-gray-500 italic">
-          No hay turnos para esta fecha con el estado seleccionado.
+<div className="p-6 max-w-md w-full space-y-4 border rounded-lg shadow bg-white">
+  <h2 className="text-lg font-bold">Turnos Aceptados</h2>
+  {events && events
+    .filter(
+      (e: Appointment) =>
+        e.state === "aceptado" &&
+        new Date(e.date_get) >= new Date(new Date().toDateString())
+    )
+    .sort((a, b) => a.date_get.localeCompare(b.date_get))
+    .map((event: Appointment) => (
+      <button
+        key={event.id}
+        onClick={() => setSelectedEvent(event)}
+        className="block w-full text-left border p-2 rounded hover:bg-blue-50"
+      >
+        <p className="font-medium">{event.full_name || "Sin nombre"}</p>
+        <p className="text-sm text-gray-500">
+          {event.date_get} – {event.start_time.slice(0, 5)}
         </p>
-      )}
+      </button>
+    ))}
+</div>
+
+      
+
+      
+
+
+      {selectedDate ? (
+        filteredEvents.length > 0 ? (
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold">Turnos para {selectedDate.toLocaleDateString()}:</h3>
+            <div className="flex flex-wrap gap-2">
+              {filteredEvents.map((event) => (
+                <button
+                  key={event.id}
+                  onClick={() => setSelectedEvent(event)}
+                  className={`p-2 rounded-lg border text-sm font-medium transition ${
+                    statusColors[event.state as keyof typeof statusColors]
+                  } ${selectedEvent?.id === event.id ? "ring-2 ring-blue-500" : ""}`}
+                >
+                  {event.start_time.slice(0, 5)}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">No hay turnos para esta fecha con el estado seleccionado.</p>
+        )
+      ) : null}
 
       {selectedEvent && (
         <div className="p-4 border rounded-xl bg-gray-50 shadow space-y-2">
-          <h3 className="text-lg font-bold text-blue-600 mb-2">
-            Detalles del turno seleccionado
-          </h3>
+          <h3 className="text-lg font-bold text-blue-600 mb-2">Detalles del turno seleccionado</h3>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-            <p>
-              <strong>ID:</strong> {selectedEvent.id}
-            </p>
-            <p>
-              <strong>Fecha:</strong> {selectedEvent.date_get}
-            </p>
-            <p>
-              <strong>Inicio:</strong> {selectedEvent.start_time}
-            </p>
-            <p>
-              <strong>Fin:</strong> {selectedEvent.end_time}
-            </p>
-            <p>
-              <strong>Razón:</strong> {selectedEvent.reason || "No disponible"}
-            </p>
-            <p>
-              <strong>Nombre:</strong>{" "}
-              {selectedEvent.full_name || "No disponible"}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedEvent.email || "No disponible"}
-            </p>
-            <p>
-              <strong>Teléfono:</strong>{" "}
-              {selectedEvent.cellphone || "No disponible"}
-            </p>
-            <p>
-              <strong>Estado:</strong>{" "}
-              <span
-                className={`font-semibold ${
-                  selectedEvent.state === "pendiente"
-                    ? "text-yellow-600"
-                    : selectedEvent.state === "aceptado"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
-              >
-                {selectedEvent.state}
-              </span>
-            </p>
+            {Object.entries({
+              ID: selectedEvent.id,
+              Fecha: selectedEvent.date_get,
+              Inicio: selectedEvent.start_time,
+              Fin: selectedEvent.end_time,
+              Razón: selectedEvent.reason || "No disponible",
+              Nombre: selectedEvent.full_name || "No disponible",
+              Email: selectedEvent.email || "No disponible",
+              Teléfono: selectedEvent.cellphone || "No disponible",
+              Estado: selectedEvent.state,
+            }).map(([key, value]) => (
+              <p key={key}>
+                <strong>{key}:</strong> {key === "Estado" ? (
+                  <span className={`font-semibold ${
+                    value === "pendiente" ? "text-yellow-600" :
+                    value === "aceptado" ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {value}
+                  </span>
+                ) : value}
+              </p>
+            ))}
           </div>
 
           <div className="flex flex-wrap gap-3 mt-4">
-            <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
-              Aceptar
-            </button>
-            <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
-              Rechazar
-            </button>
-            <button className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
-              Cancelar
-            </button>
-            <button
-              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+            {selectedEvent.state === "pendiente" && (
+              <>
+                <ActionButton 
+                  onClick={() => handleStatusUpdate("aceptado")}
+                  disabled={isPendingStatus}
+                  color="green"
+                  label="Aceptar"
+                />
+                <ActionButton 
+                  onClick={() => handleStatusUpdate("rechazado")}
+                  disabled={isPendingStatus}
+                  color="red"
+                  label="Rechazar"
+                />
+              </>
+            )}
+
+            {(selectedEvent.state === "pendiente" || selectedEvent.state === "aceptado") && (
+              <ActionButton 
+                onClick={() => handleStatusUpdate("cancelado")}
+                disabled={isPendingStatus}
+                color="yellow"
+                label="Cancelar"
+              />
+            )}
+
+            <ActionButton 
               onClick={() => setSelectedEvent(null)}
-            >
-              Cerrar
-            </button>
+              disabled={isPendingStatus}
+              color="gray"
+              label="Cerrar"
+            />
 
             {selectedEvent.cellphone && (
-              <a
-                href={`https://wa.me/${selectedEvent.cellphone.replace(
-                  /\D/g,
-                  ""
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-              >
-                <FaWhatsapp size={20} />
-              </a>
+              <WhatsAppButton 
+                phone={selectedEvent.cellphone}
+                disabled={isPendingStatus}
+              />
             )}
           </div>
         </div>
@@ -182,5 +193,45 @@ const Calendar: React.FC = () => {
     </div>
   );
 };
+
+// Componentes ActionButton y WhatsAppButton permanecen igual
+const ActionButton: React.FC<{
+  onClick: () => void;
+  disabled: boolean;
+  color: "green" | "red" | "yellow" | "gray";
+  label: string;
+}> = ({ onClick, disabled, color, label }) => {
+  const colors = {
+    green: { bg: "bg-green-500", hover: "hover:bg-green-600", disabledBg: "bg-green-300" },
+    red: { bg: "bg-red-500", hover: "hover:bg-red-600", disabledBg: "bg-red-300" },
+    yellow: { bg: "bg-yellow-500", hover: "hover:bg-yellow-600", disabledBg: "bg-yellow-300" },
+    gray: { bg: "bg-gray-400", hover: "hover:bg-gray-500", disabledBg: "bg-gray-300" },
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-2 rounded text-white transition ${
+        disabled ? `${colors[color].disabledBg} cursor-not-allowed` : `${colors[color].bg} ${colors[color].hover}`
+      }`}
+    >
+      {label}
+    </button>
+  );
+};
+
+const WhatsAppButton: React.FC<{ phone: string; disabled: boolean }> = ({ phone, disabled }) => (
+  <a
+    href={`https://wa.me/${phone.replace(/\D/g, "")}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className={`flex items-center gap-2 px-4 py-2 rounded text-white transition ${
+      disabled ? "bg-green-300 cursor-not-allowed pointer-events-none" : "bg-green-600 hover:bg-green-700"
+    }`}
+  >
+    <FaWhatsapp size={20} />
+  </a>
+);
 
 export default Calendar;

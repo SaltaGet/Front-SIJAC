@@ -3,7 +3,7 @@ import {
   useAppointmentClient,
 } from "@/hooks/client/useAppointmentClient";
 import { useAvailability } from "@/hooks/useAvailability";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/client/useUser";
 import React, { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import FormCreateTurno from "./FormCreateTurno";
+import { useSearchParams } from "react-router-dom";
 
 const Turnos: React.FC = () => {
   const [selectedProfessional, setSelectedProfessional] = useState<
@@ -26,11 +27,13 @@ const Turnos: React.FC = () => {
     selectedProfessional ?? undefined
   );
 
+  const [searchParams] = useSearchParams()
+  const isMediador = searchParams.get("mediador") === "true"
   const [openModal, setOpenModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentClient | null>(null); // Estado para la hora seleccionada
-  const { usersData } = useUser();
+  const { usersData } = useUser(isMediador);
   const { appointmentsData } = useAppointmentClient(
     selectedProfessional ?? undefined,
     availabilityData?.find(
@@ -79,9 +82,11 @@ const Turnos: React.FC = () => {
 
       {/* Turnos Section */}
       <section className="py-16 px-6 bg-white text-center">
-        <h2 className="text-3xl font-bold mb-6 text-prim-500">
+        {isMediador ? <h2 className="text-3xl font-bold mb-6 text-prim-500">
+          Mediadores Disponibles
+        </h2>:<h2 className="text-3xl font-bold mb-6 text-prim-500">
           Elige un Profesional
-        </h2>
+        </h2>}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
           {usersData?.map((user) => (
             <div
@@ -188,7 +193,9 @@ const Turnos: React.FC = () => {
                   </p>
                   <FormCreateTurno id={selectedAppointment.id} modal={setOpenModal}/>
                 </DialogDescription>
+                
               </DialogHeader>
+              <button className="bg-red-500 w-min text-white px-3 py-2 rounded-lg" onClick={() => setOpenModal(false)}>Salir</button>
             </DialogContent>
           </Dialog>
         )}

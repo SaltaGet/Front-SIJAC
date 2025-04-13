@@ -1,9 +1,11 @@
 import { useState } from "react";
 import CalendarApointment from "@/components/time-calendar/CalendarApointment";
 import CalendarSelector from "@/components/time-calendar/CalendarSelector";
+import FormCreatePost from "./FormCreatePost";
+import AdimEditPost from "./AdminEditBlog";
 
 const Admin = () => {
-  const [activeSection, setActiveSection] = useState<"selector" | "appointment">("selector");
+  const [activeSection, setActiveSection] = useState<"selector" | "appointment" | "createPost" | "editPost">("selector");
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row">
@@ -31,6 +33,26 @@ const Admin = () => {
           >
             Turnos
           </button>
+          <button
+            onClick={() => setActiveSection("createPost")}
+            className={`text-left p-2 rounded ${
+              activeSection === "createPost"
+                ? "bg-prim-500 text-white"
+                : "hover:bg-prim-200 text-prim-800"
+            }`}
+          >
+            Crear Post
+          </button>
+          <button
+            onClick={() => setActiveSection("editPost")}
+            className={`text-left p-2 rounded ${
+              activeSection === "editPost"
+                ? "bg-prim-500 text-white"
+                : "hover:bg-prim-200 text-prim-800"
+            }`}
+          >
+            Tus Posteos
+          </button>
         </nav>
       </aside>
 
@@ -38,6 +60,8 @@ const Admin = () => {
       <main className="flex-1 p-4">
         {activeSection === "selector" && <CalendarSelector />}
         {activeSection === "appointment" && <CalendarApointment />}
+        {activeSection === "createPost" && <FormCreatePost />}
+        {activeSection === "editPost" && <AdimEditPost />}
       </main>
     </div>
   );

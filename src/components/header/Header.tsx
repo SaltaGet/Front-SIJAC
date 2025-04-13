@@ -26,9 +26,9 @@ const Header: React.FC = () => {
           <a href="#mediaciones" className="hover:text-prim-500 transition">
             Mediaciones
           </a>
-          <a href="#noticias" className="hover:text-prim-500 transition">
+          <Link to="/blogs" className="hover:text-prim-500 transition">
             Noticias
-          </a>
+          </Link>
         </nav>
 
         {/* Turno button (desktop) */}
