@@ -33,7 +33,7 @@ const Header: React.FC = () => {
 
         {/* Turno button (desktop) */}
         <Link
-          to={"/turnos"}
+          to={"/turnos?mediador=false"}
           className="hidden md:inline-block bg-prim-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
         >
           Pedir Turno
