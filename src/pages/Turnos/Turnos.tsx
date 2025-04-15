@@ -27,9 +27,9 @@ const Turnos: React.FC = () => {
     selectedProfessional ?? undefined
   );
 
-  const [searchParams] = useSearchParams()
-  const isMediador = searchParams.get("mediador") === "true"
-  const [openModal, setOpenModal] = useState(false)
+  const [searchParams] = useSearchParams();
+  const isMediador = searchParams.get("mediador") === "true";
+  const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentClient | null>(null); // Estado para la hora seleccionada
@@ -82,11 +82,15 @@ const Turnos: React.FC = () => {
 
       {/* Turnos Section */}
       <section className="py-16 px-6 bg-white text-center">
-        {isMediador ? <h2 className="text-3xl font-bold mb-6 text-prim-500">
-          Mediadores Disponibles
-        </h2>:<h2 className="text-3xl font-bold mb-6 text-prim-500">
-          Elige un Profesional
-        </h2>}
+        {isMediador ? (
+          <h2 className="text-3xl font-bold mb-6 text-prim-500">
+            Mediadores Disponibles
+          </h2>
+        ) : (
+          <h2 className="text-3xl font-bold mb-6 text-prim-500">
+            Elige un Profesional
+          </h2>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
           {usersData?.map((user) => (
             <div
@@ -108,7 +112,7 @@ const Turnos: React.FC = () => {
         </div>
 
         <h3 className="text-2xl font-semibold mb-4">
-          {selectedProfessional} - Elige una fecha y hora Disponibles
+          Elige una Fecha y Hora Disponibles
         </h3>
 
         {selectedProfessional && (
@@ -122,11 +126,24 @@ const Turnos: React.FC = () => {
                 disabled: [
                   (date) => !availableDates.includes(formatDate(date)),
                   (date) => date.getDay() === 0 || date.getDay() === 6,
+                  (date) => {
+                    const todayMidnight = new Date();
+                    todayMidnight.setHours(0, 0, 0, 0);
+                    return date <= todayMidnight;
+                  },
                 ],
-                available: (date) => availableDates.includes(formatDate(date)),
+                available: (date) => {
+                  const todayMidnight = new Date();
+                  todayMidnight.setHours(0, 0, 0, 0);
+                  return (
+                    availableDates.includes(formatDate(date)) &&
+                    date > todayMidnight
+                  );
+                },
               }}
               modifiersClassNames={{
-                available: "bg-prim-300 text-white hover:bg-green-400",
+                available: "bg-prim-500 text-white hover:bg-green-400",
+                disabled: "bg-gray-50 text-gray-400 cursor-not-allowed",
               }}
             />
 
@@ -173,7 +190,10 @@ const Turnos: React.FC = () => {
         {/* Mostrar detalles seleccionados */}
         {selectedProfessional && selectedDate && selectedAppointment && (
           <Dialog open={openModal}>
-            <DialogTrigger onClick={() => setOpenModal(true)} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <DialogTrigger
+              onClick={() => setOpenModal(true)}
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
               Solicitar Turno
             </DialogTrigger>
             <DialogContent>
@@ -191,11 +211,18 @@ const Turnos: React.FC = () => {
                   <p className="mt-2">
                     Hora: {selectedAppointment.start_time.slice(0, 5)}
                   </p>
-                  <FormCreateTurno id={selectedAppointment.id} modal={setOpenModal}/>
+                  <FormCreateTurno
+                    id={selectedAppointment.id}
+                    modal={setOpenModal}
+                  />
                 </DialogDescription>
-                
               </DialogHeader>
-              <button className="bg-red-500 w-min text-white px-3 py-2 rounded-lg" onClick={() => setOpenModal(false)}>Salir</button>
+              <button
+                className="bg-red-500 w-min text-white px-3 py-2 rounded-lg"
+                onClick={() => setOpenModal(false)}
+              >
+                Salir
+              </button>
             </DialogContent>
           </Dialog>
         )}

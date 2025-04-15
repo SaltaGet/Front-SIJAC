@@ -23,7 +23,8 @@ interface BlogResponse {
   page: number
   per_page: number
   total: number
-  blogs: Blog[]
+  total_pages: number
+  data: Blog[] // ← este campo se llama "data", no "blogs"
 }
 
 const fetchBlogs = async ({ pageParam = 1 }): Promise<BlogResponse> => {
@@ -45,13 +46,15 @@ export function usePostGet() {
     queryFn: fetchBlogs,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const totalPages = Math.ceil(lastPage.total / lastPage.per_page)
-      return lastPage.page < totalPages ? lastPage.page + 1 : undefined
+      return lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined
     },
   })
 
+  // flatten para tener un array plano de posts
+  const blogs = data?.pages.flatMap((page) => page.data) ?? []
+
   return {
-    data,
+    blogs,
     error,
     fetchNextPage,
     hasNextPage,
