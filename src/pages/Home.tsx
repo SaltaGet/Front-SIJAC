@@ -52,7 +52,7 @@ const Home: React.FC = () => {
             >
               <img src={user.url_image} className="w-24 h-24 mx-auto rounded-full mb-4" />
               <h3 className="font-semibold text-lg">{user.first_name} {user.last_name}</h3>
-              <p className="text-sm text-gray-600">Esperando Imp</p>
+              <p className="text-sm text-gray-600">{user.specialty}</p>
             </div>
           ))}
         </div>

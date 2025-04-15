@@ -94,20 +94,29 @@ const Turnos: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
           {usersData?.map((user) => (
             <div
-              key={user.id}
-              className={`${
-                selectedProfessional === user.id
-                  ? "bg-prim-500 text-white"
-                  : "bg-white text-prim-500"
-              } rounded-xl p-6 shadow-sm border border-gray-200 cursor-pointer transition hover:bg-prim-100`}
-              onClick={() => handleProfessionalSelect(user.id)}
-            >
+            key={user.id}
+            className={`${
+              selectedProfessional === user.id
+                ? "bg-prim-500 text-white"
+                : "bg-white text-prim-500"
+            } rounded-xl p-6 shadow-sm border border-gray-200 cursor-pointer transition hover:bg-prim-100`}
+            onClick={() => handleProfessionalSelect(user.id)}
+          >
+            {user.url_image ? (
+              <img
+                src={user.url_image}
+                alt={`${user.first_name} ${user.last_name}`}
+                className="w-24 h-24 mx-auto rounded-full object-cover mb-4"
+              />
+            ) : (
               <div className="w-24 h-24 mx-auto bg-prim-100 rounded-full mb-4" />
-              <h3 className="font-semibold text-lg">
-                {user.first_name} {user.last_name}
-              </h3>
-              <p className="text-sm text-gray-600">Especialidad</p>
-            </div>
+            )}
+            <h3 className="font-semibold text-lg">
+              {user.first_name} {user.last_name}
+            </h3>
+            <p className="text-sm text-gray-600">{user.specialty}</p>
+          </div>
+          
           ))}
         </div>
 
