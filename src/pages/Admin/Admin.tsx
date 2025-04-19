@@ -11,11 +11,11 @@ const Admin = () => {
   const {token} = useAuthStore()
   const navigate = useNavigate()
   useEffect(() => {
-    if (token) {
+    if (!token) {
       navigate("/login")
     }
 
-  },[navigate, token])
+  },[navigate,token])
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row">
