@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CalendarApointment from "@/components/time-calendar/CalendarApointment";
 import CalendarSelector from "@/components/time-calendar/CalendarSelector";
 import FormCreatePost from "./FormCreatePost";
 import AdimEditPost from "./AdminEditBlog";
+import useAuthStore from "@/store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [activeSection, setActiveSection] = useState<"selector" | "appointment" | "createPost" | "editPost">("selector");
+  const {token} = useAuthStore()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (token) {
+      navigate("/login")
+    }
+
+  },[navigate, token])
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row">
