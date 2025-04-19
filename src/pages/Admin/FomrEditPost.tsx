@@ -190,12 +190,21 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
             Seleccionar imagen
           </label>
           <input
-            id="image"
-            type="file"
-            accept="image/*"
-            {...register("image")}
-            className="hidden"
-          />
+  id="image"
+  type="file"
+  accept="image/*"
+  {...register("image", {
+    validate: {
+      lessThan2MB: (files) =>
+        !files?.[0] || files[0].size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
+      acceptedFormats: (files) =>
+        !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
+        "formato no permitido (solo jpg, png o webp)",
+    },
+  })}
+  className="hidden"
+/>
+
         </div>
 
         {preview && (

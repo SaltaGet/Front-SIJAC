@@ -144,14 +144,22 @@ const FormCreatePost: React.FC = () => {
             Seleccionar imagen
           </label>
           <input
-            id="image"
-            type="file"
-            accept="image/*"
-            {...register("image", {
-              required: "la imagen es obligatoria",
-            })}
-            className="hidden"
-          />
+  id="image"
+  type="file"
+  accept="image/*"
+  {...register("image", {
+    required: "la imagen es obligatoria",
+    validate: {
+      lessThan2MB: (files) =>
+        files && files[0]?.size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
+      acceptedFormats: (files) =>
+        files &&
+        ["image/jpeg", "image/png", "image/webp"].includes(files[0]?.type) ||
+        "formato no permitido (solo jpg, png o webp)",
+    },
+  })}
+/>
+
         </div>
         {errors.image && (
           <span className="text-sm text-red-600">{errors.image.message}</span>
