@@ -11,7 +11,10 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to={"/"} className="text-2xl font-bold text-prim-500 tracking-wide">
+        <Link
+          to={"/"}
+          className="text-2xl font-bold text-prim-500 tracking-wide"
+        >
           SIJAC
         </Link>
 
@@ -48,16 +51,32 @@ const Header: React.FC = () => {
       {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200 px-6 py-4 space-y-4 text-gray-800 font-medium">
-          <a href="#nosotros" className="block hover:text-prim-500 transition" onClick={toggleMenu}>
+          <a
+            href="#nosotros"
+            className="block hover:text-prim-500 transition"
+            onClick={toggleMenu}
+          >
             Nosotros
           </a>
-          <a href="#profesionales" className="block hover:text-prim-500 transition" onClick={toggleMenu}>
+          <a
+            href="#profesionales"
+            className="block hover:text-prim-500 transition"
+            onClick={toggleMenu}
+          >
             Profesionales
           </a>
-          <a href="#mediaciones" className="block hover:text-prim-500 transition" onClick={toggleMenu}>
+          <a
+            href="#mediaciones"
+            className="block hover:text-prim-500 transition"
+            onClick={toggleMenu}
+          >
             Mediaciones
           </a>
-          <a href="#noticias" className="block hover:text-prim-500 transition" onClick={toggleMenu}>
+          <a
+            href="#noticias"
+            className="block hover:text-prim-500 transition"
+            onClick={toggleMenu}
+          >
             Noticias
           </a>
           <a

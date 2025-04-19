@@ -10,6 +10,7 @@ const Admin = () => {
   const [activeSection, setActiveSection] = useState<"selector" | "appointment" | "createPost" | "editPost">("selector");
   const {token} = useAuthStore()
   const navigate = useNavigate()
+  const {clearAuth} = useAuthStore()
   useEffect(() => {
     if (!token) {
       navigate("/login")
@@ -62,6 +63,21 @@ const Admin = () => {
             }`}
           >
             Tus Posteos
+          </button>
+          <button
+            onClick={()=> {
+              clearAuth();
+              navigate("login")
+
+            }
+            }
+            className={`text-left p-2 rounded ${
+              activeSection === "editPost"
+                ? "bg-prim-500 text-white"
+                : "hover:bg-prim-200 text-prim-800"
+            }`}
+          >
+            Cerrar Sesión
           </button>
         </nav>
       </aside>
