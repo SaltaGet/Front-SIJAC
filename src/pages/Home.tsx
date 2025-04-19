@@ -29,7 +29,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Nosotros */}
-      <section className="py-16 px-6 bg-white text-center">
+      <section id="nosotros" className="py-16 px-6 bg-white text-center">
         <h2 className="text-3xl font-bold mb-6 text-prim-500">Nosotros</h2>
         <p className="max-w-3xl mx-auto text-lg leading-relaxed">
           En SIJAC Consultora, somos un equipo apasionado por brindar soluciones
@@ -40,7 +40,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Nuestro Equipo */}
-      <section className="py-16 px-6 bg-gray-50 text-center">
+      <section id="profesionales" className="py-16 px-6 bg-gray-50 text-center">
         <h2 className="text-3xl font-bold mb-10 text-prim-500">
           Nuestro Equipo
         </h2>
@@ -59,7 +59,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Mediaciones */}
-      <section className="py-16 px-6 bg-white text-center">
+      <section id="mediaciones" className="py-16 px-6 bg-white text-center">
         <h2 className="text-3xl font-bold mb-6 text-prim-500">Mediaciones</h2>
         <p className="max-w-3xl mx-auto mb-8 text-lg leading-relaxed text-gray-700">
           En SIJAC Consultora, ofrecemos servicios de mediación para resolver

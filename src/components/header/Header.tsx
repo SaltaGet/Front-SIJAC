@@ -1,11 +1,31 @@
 import React, { useState } from "react";
-import { Menu, X } from "lucide-react"; // usa lucide para los íconos
-import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
+
+  const handleNavigation = (id: string) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    setIsOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -20,15 +40,24 @@ const Header: React.FC = () => {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex gap-6 text-gray-800 font-medium">
-          <a href="#nosotros" className="hover:text-prim-500 transition">
+          <span
+            onClick={() => handleNavigation("nosotros")}
+            className="cursor-pointer hover:text-prim-500 transition"
+          >
             Nosotros
-          </a>
-          <a href="#profesionales" className="hover:text-prim-500 transition">
+          </span>
+          <span
+            onClick={() => handleNavigation("profesionales")}
+            className="cursor-pointer hover:text-prim-500 transition"
+          >
             Profesionales
-          </a>
-          <a href="#mediaciones" className="hover:text-prim-500 transition">
+          </span>
+          <span
+            onClick={() => handleNavigation("mediaciones")}
+            className="cursor-pointer hover:text-prim-500 transition"
+          >
             Mediaciones
-          </a>
+          </span>
           <Link to="/blogs" className="hover:text-prim-500 transition">
             Noticias
           </Link>
@@ -51,41 +80,38 @@ const Header: React.FC = () => {
       {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200 px-6 py-4 space-y-4 text-gray-800 font-medium">
-          <a
-            href="#nosotros"
-            className="block hover:text-prim-500 transition"
-            onClick={toggleMenu}
+          <span
+            onClick={() => handleNavigation("nosotros")}
+            className="block cursor-pointer hover:text-prim-500 transition"
           >
             Nosotros
-          </a>
-          <a
-            href="#profesionales"
-            className="block hover:text-prim-500 transition"
-            onClick={toggleMenu}
+          </span>
+          <span
+            onClick={() => handleNavigation("profesionales")}
+            className="block cursor-pointer hover:text-prim-500 transition"
           >
             Profesionales
-          </a>
-          <a
-            href="#mediaciones"
-            className="block hover:text-prim-500 transition"
-            onClick={toggleMenu}
+          </span>
+          <span
+            onClick={() => handleNavigation("mediaciones")}
+            className="block cursor-pointer hover:text-prim-500 transition"
           >
             Mediaciones
-          </a>
-          <a
-            href="#noticias"
+          </span>
+          <Link
+            to="/blogs"
             className="block hover:text-prim-500 transition"
-            onClick={toggleMenu}
+            onClick={() => setIsOpen(false)}
           >
             Noticias
-          </a>
-          <a
-            href="#turnos"
+          </Link>
+          <Link
+            to={"turnos"}
             className="block bg-prim-500 text-white text-center px-4 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
-            onClick={toggleMenu}
+            onClick={() => setIsOpen(false)}
           >
             Pedir Turno
-          </a>
+          </Link>
         </div>
       )}
     </header>

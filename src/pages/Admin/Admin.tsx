@@ -9,7 +9,7 @@ import { Menu } from "lucide-react";
 
 const Admin = () => {
   const [activeSection, setActiveSection] = useState<
-    "selector" | "appointment" | "createPost" | "editPost"
+    "selector" | "appointment" | "createPost" | "editPost" | "appointment-edit"
   >("selector");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { token, clearAuth } = useAuthStore();
@@ -74,6 +74,7 @@ const Admin = () => {
           >
             Turnos
           </button>
+
           <button
             onClick={() => {
               setActiveSection("createPost");
