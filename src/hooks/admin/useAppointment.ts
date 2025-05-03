@@ -62,6 +62,7 @@ export function useAppointment() {
   const {
     data: appointmentsData,
     refetch: refetchAppointments,
+    isLoading: isLoadingAppointments,
   } = useQuery({
     queryKey: ["appointments-admin"],
     queryFn: fetchAppointments,
@@ -95,5 +96,6 @@ export function useAppointment() {
     refetchAppointments,
     updateStatus,
     isPendingStatus,
+    isLoadingAppointments
   };
 }

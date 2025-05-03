@@ -50,7 +50,7 @@ const Calendar: React.FC = () => {
 
   const eventDates = new Set(events?.map((e) => e.date_get));
 
-  const handleStatusUpdate = (newState: string, reason = "sin razon") => {
+  const handleStatusUpdate = (newState: string, reason = "Pedimos disculpa por el inconveniente ha surgido un inconveniente en este horario y no podremos atenderte") => {
     if (!selectedEvent) return;
     updateStatus({ appointmentId: selectedEvent.id, newState, reason });
   };
@@ -107,7 +107,7 @@ const Calendar: React.FC = () => {
         filteredEvents.length > 0 ? (
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">
-              Turnos Para el {formatearFecha(selectedDate.toLocaleDateString())}
+              Turnos Para el {formatearFecha(new Date(selectedDate))}
             </h3>
             <div className="flex flex-wrap gap-2">
               {filteredEvents.map((event) => (
@@ -205,6 +205,14 @@ const Calendar: React.FC = () => {
               color="gray"
               label="Cerrar"
             />
+
+            {selectedEvent?.state !== "rechazado" && <ActionButton
+              onClick={() => handleStatusUpdate("rechazado")}
+              disabled={isPendingStatus}
+              color="red"
+              label="No disponible"
+            />}
+
 
             {selectedEvent.cellphone && (
               <WhatsAppButton
