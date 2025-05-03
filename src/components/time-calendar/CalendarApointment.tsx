@@ -27,6 +27,7 @@ const Calendar: React.FC = () => {
     appointmentsData: events,
     updateStatus,
     isPendingStatus,
+    isLoadingAppointments,
   } = useAppointment();
 
   // Obtener fechas con eventos pendientes
@@ -206,7 +207,7 @@ const Calendar: React.FC = () => {
               label="Cerrar"
             />
 
-            {selectedEvent?.state !== "rechazado" && <ActionButton
+            {selectedEvent?.state !== "rechazado" && !isLoadingAppointments&& <ActionButton
               onClick={() => handleStatusUpdate("rechazado")}
               disabled={isPendingStatus}
               color="red"
