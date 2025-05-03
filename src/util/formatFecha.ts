@@ -3,6 +3,7 @@ import "dayjs/locale/es";
 
 dayjs.locale("es");
 
-export function formatearFecha(fecha: string): string {
-  return dayjs(fecha, "D/M/YYYY").format("D [de] MMMM [de] YYYY");
+// ✅ acepta Date directamente
+export function formatearFecha(fecha: Date): string {
+  return dayjs(fecha).format("D [de] MMMM [de] YYYY");
 }

@@ -140,6 +140,8 @@ const CalendarSelector = () => {
             disabled: "text-gray-400 line-through",
           }}
           disabled={isDayDisabled}
+          startMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
+          endMonth={new Date(today.getFullYear(), today.getMonth() + 1, 1)}
         />
       </div>
 
