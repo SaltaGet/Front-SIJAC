@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
-import "dayjs/locale/es"; // importa el idioma español
+import "dayjs/locale/es";
 
-dayjs.locale("es"); // configura dayjs en español
+dayjs.locale("es");
 
 export function formatearFecha(fecha: string): string {
-  return dayjs(fecha, "M/D/YYYY").format("D [de] MMMM [de] YYYY");
+  return dayjs(fecha, "D/M/YYYY").format("D [de] MMMM [de] YYYY");
 }

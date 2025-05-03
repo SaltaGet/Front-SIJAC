@@ -19,6 +19,8 @@ interface UpdateFormData {
   image?: FileList; // La imagen es opcional para la actualización
 }
 
+
+
 const postData = async (formData: FormData) => {
   const token = useAuthStore.getState().token;
   const dataToSend = new FormData();
