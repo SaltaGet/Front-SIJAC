@@ -20,7 +20,7 @@ const statusColors = {
   cancelado: "bg-red-500 text-white",
   rechazado: "bg-yellow-500 text-white",
 };
-
+const today = new Date();
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedEvent, setSelectedEvent] = useState<Appointment | null>(null);
@@ -78,6 +78,8 @@ const Calendar: React.FC = () => {
           disabled: "text-gray-400 line-through",
           pending: "bg-orange-500 text-white rounded-full",
         }}
+        startMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
+          endMonth={new Date(today.getFullYear(), today.getMonth() + 1, 1)}
       />
 
       <div className="p-6 max-w-md w-full space-y-4 border rounded-lg shadow bg-white">

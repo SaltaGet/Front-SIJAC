@@ -40,7 +40,7 @@ const CalendarSelector = () => {
   const { userId } = useAuthStore();
   const { createAvailability, takenDays, isPendingCreate } = useAvailability(userId ?? undefined);
 
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
   const timeOptions = useMemo(generateTimeOptions, []);
   
   const validStartOptions = useMemo(
@@ -140,8 +140,6 @@ const CalendarSelector = () => {
             disabled: "text-gray-400 line-through",
           }}
           disabled={isDayDisabled}
-          startMonth={new Date(today.getFullYear(), today.getMonth(), 1)}
-          endMonth={new Date(today.getFullYear(), today.getMonth() + 1, 1)}
         />
       </div>
 

@@ -49,7 +49,7 @@ export function useAvailability(idUser?: string) {
       const results = await Promise.allSettled(
         schedules.map((schedule) => postAvailability(schedule))
       );
-
+  
       results.forEach((result, index) => {
         if (result.status === "fulfilled") {
           console.log(`Disponibilidad creada [${index}]:`, result.value);
@@ -57,12 +57,19 @@ export function useAvailability(idUser?: string) {
           console.error(`Error al crear disponibilidad [${index}]:`, result.reason);
         }
       });
-
+  
+      const allSuccessful = results.every(result => result.status === "fulfilled");
+  
+      if (allSuccessful) {
+        alert("Turnos creados correctamente");
+      }
+  
       refetchAvailability();
     } finally {
       setIsPendingCreate(false);
     }
   };
+  
 
   const takenDays = availabilityData ? availabilityData.map(a => a.date_all) : [];
 
