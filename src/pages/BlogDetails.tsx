@@ -56,7 +56,7 @@ const BlogDetails = () => {
 
                     <div className="mt-8 flex items-center space-x-4">
                         <img 
-                            src={`http://18.119.164.103/image/get_image_blog/${userImage}`} 
+                            src={userImage} 
                             alt={`${first_name} ${last_name}`} 
                             className="w-12 h-12 rounded-full object-cover"
                         />
