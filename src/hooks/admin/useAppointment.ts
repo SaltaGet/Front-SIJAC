@@ -66,7 +66,7 @@ export function useAppointment() {
   } = useQuery({
     queryKey: ["appointments-admin"],
     queryFn: fetchAppointments,
-    refetchInterval: 4000,
+    staleTime: Infinity,
     select: (data) =>
       [...data].sort((a, b) =>
         a.start_time.localeCompare(b.start_time)
