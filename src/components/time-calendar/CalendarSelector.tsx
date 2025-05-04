@@ -223,15 +223,16 @@ const validEndOptionalOptions = useMemo(
         />
       </div>
 
+      <h2>Doble Horario (opcional)</h2>
       <div className="flex justify-between gap-4">
         <TimeSelectOptional
-          label="Hora opcional desde"
+          label="Segundo Hora de inicio"
           value={startTimeOptional}
           options={validStartOptionalOptions}
           onChange={handleStartTimeOptionalChange}
         />
         <TimeSelectOptional
-          label="Hora opcional hasta"
+          label="Segundo Hora de fin"
           value={endTimeOptional}
           options={validEndOptionalOptions}
           onChange={handleEndTimeOptionalChange}
