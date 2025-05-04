@@ -12,6 +12,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useAvailability } from "@/hooks/useAvailability";
+import { Button } from "../ui/button";
 
 const statusColors = {
   nulo: "bg-white text-black hover:bg-blue-100",
@@ -29,6 +31,8 @@ const Calendar: React.FC = () => {
     isPendingStatus,
     isLoadingAppointments,
   } = useAppointment();
+
+  const { mutateDelete, isPendingDelete } = useAvailability();
 
   // Obtener fechas con eventos pendientes
   const pendingDates = new Set(
@@ -51,7 +55,10 @@ const Calendar: React.FC = () => {
 
   const eventDates = new Set(events?.map((e) => e.date_get));
 
-  const handleStatusUpdate = (newState: string, reason = "Pedimos disculpa por el inconveniente ha surgido un inconveniente en este horario y no podremos atenderte") => {
+  const handleStatusUpdate = (
+    newState: string,
+    reason = "Pedimos disculpa por el inconveniente ha surgido un inconveniente en este horario y no podremos atenderte"
+  ) => {
     if (!selectedEvent) return;
     updateStatus({ appointmentId: selectedEvent.id, newState, reason });
   };
@@ -207,13 +214,14 @@ const Calendar: React.FC = () => {
               label="Cerrar"
             />
 
-            {selectedEvent?.state !== "rechazado" && !isLoadingAppointments&& <ActionButton
-              onClick={() => handleStatusUpdate("rechazado")}
-              disabled={isPendingStatus}
-              color="red"
-              label="No disponible"
-            />}
-
+            {selectedEvent?.state !== "rechazado" && !isLoadingAppointments && (
+              <ActionButton
+                onClick={() => handleStatusUpdate("rechazado")}
+                disabled={isPendingStatus}
+                color="red"
+                label="No disponible"
+              />
+            )}
 
             {selectedEvent.cellphone && (
               <WhatsAppButton
@@ -235,6 +243,21 @@ const Calendar: React.FC = () => {
           </AccordionItem>
         </Accordion>
       )}
+
+{filteredEvents.length > 0 && (
+  <Button
+    onClick={() => {
+      const confirmDelete = window.confirm("¿Estás seguro? y los turnos que estén aceptados y pendientes seran Rechazados automáticamente");
+      if (confirmDelete) {
+        mutateDelete(filteredEvents[0].availability_id);
+      }
+    }}
+    disabled={isPendingDelete}
+  >
+    {isPendingDelete ? "Borrando..." : "Borrar Fecha"}
+  </Button>
+)}
+
     </div>
   );
 };

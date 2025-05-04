@@ -9,6 +9,8 @@ const WORKING_HOURS = {
   END: 20,
   DAY_START: "09:00",
   DAY_END: "16:00",
+  DAY_START_OPTIONAL: null,
+  DAY_END_OPTIONAL: null,
 };
 
 const WEEKEND_DAYS = [0, 6]; // Domingo (0) y Sábado (6)
@@ -35,6 +37,8 @@ const CalendarSelector = () => {
   const [availableDays, setAvailableDays] = useState<Date[]>([]);
   const [startTime, setStartTime] = useState(WORKING_HOURS.DAY_START);
   const [endTime, setEndTime] = useState(WORKING_HOURS.DAY_END);
+  const [startTimeOptional, setStartTimeOptional] = useState<string | null>(WORKING_HOURS.DAY_START_OPTIONAL);
+  const [endTimeOptional, setEndTimeOptional] = useState<string | null>(WORKING_HOURS.DAY_END_OPTIONAL);
   const [autoFill, setAutoFill] = useState(false);
   
   const { userId } = useAuthStore();
@@ -52,6 +56,23 @@ const CalendarSelector = () => {
     () => timeOptions.filter((t) => t > startTime),
     [timeOptions, startTime]
   );
+
+// Options for optional start time (must be > endTime)
+const validStartOptionalOptions = useMemo(
+  () => {
+    return timeOptions.filter(t => t > endTime);
+  },
+  [timeOptions, endTime]
+);
+
+// Options for optional end time (must be > startTimeOptional)
+const validEndOptionalOptions = useMemo(
+  () => {
+    if (!startTimeOptional) return [];
+    return timeOptions.filter(t => t > startTimeOptional);
+  },
+  [timeOptions, startTimeOptional]
+);
 
   useEffect(() => {
     const generateAvailableDays = () => {
@@ -93,34 +114,66 @@ const CalendarSelector = () => {
     });
   }, [autoFill, today]);
 
+  const handleStartTimeOptionalChange = useCallback((value: string | null) => {
+    setStartTimeOptional(value);
+    // Reset endTimeOptional if it's invalid with the new startTimeOptional
+    if (value && endTimeOptional && endTimeOptional <= value) {
+      setEndTimeOptional(null);
+    }
+  }, [endTimeOptional]);
+
+  const handleEndTimeOptionalChange = useCallback((value: string | null) => {
+    setEndTimeOptional(value);
+  }, []);
+
   const handleConfirm = useCallback(() => {
     const daysToUse = autoFill
       ? availableDays.filter(
           date => !takenDays.includes(date.toISOString().split("T")[0])
         )
       : selectedDays;
-
+  
     const availabilityData = daysToUse.map(date => {
       const dateStr = date.toISOString().split("T")[0];
       const [startHour, startMinute] = startTime.split(":").map(Number);
       const [endHour, endMinute] = endTime.split(":").map(Number);
-
+  
       const start = new Date(date);
       start.setHours(startHour, startMinute, 0, 0);
-
+  
       const end = new Date(date);
       end.setHours(endHour, endMinute, 0, 0);
-
+  
+      // Formatear los tiempos opcionales si existen
+      let formattedStartOptional = null;
+      let formattedEndOptional = null;
+  
+      if (startTimeOptional) {
+        const [startOptHour, startOptMinute] = startTimeOptional.split(":").map(Number);
+        const startOpt = new Date(date);
+        startOpt.setHours(startOptHour, startOptMinute, 0, 0);
+        formattedStartOptional = formatToArgentinaTime(startOpt);
+      }
+  
+      if (endTimeOptional) {
+        const [endOptHour, endOptMinute] = endTimeOptional.split(":").map(Number);
+        const endOpt = new Date(date);
+        endOpt.setHours(endOptHour, endOptMinute, 0, 0);
+        formattedEndOptional = formatToArgentinaTime(endOpt);
+      }
+  
       return {
         date_all: dateStr,
         start_time: formatToArgentinaTime(start),
         end_time: formatToArgentinaTime(end),
+        start_time_optional: formattedStartOptional,
+        end_time_optional: formattedEndOptional,
       };
     });
-
+  
     createAvailability(availabilityData);
     setSelectedDays([]);
-  }, [autoFill, availableDays, takenDays, selectedDays, startTime, endTime, createAvailability]);
+  }, [autoFill, availableDays, takenDays, selectedDays, startTime, endTime, createAvailability, startTimeOptional, endTimeOptional]);
 
   const isDayDisabled = useCallback((date: Date) => {
     const isWeekendOrPast = WEEKEND_DAYS.includes(date.getDay()) || date <= today;
@@ -170,6 +223,22 @@ const CalendarSelector = () => {
         />
       </div>
 
+      <div className="flex justify-between gap-4">
+        <TimeSelectOptional
+          label="Hora opcional desde"
+          value={startTimeOptional}
+          options={validStartOptionalOptions}
+          onChange={handleStartTimeOptionalChange}
+        />
+        <TimeSelectOptional
+          label="Hora opcional hasta"
+          value={endTimeOptional}
+          options={validEndOptionalOptions}
+          onChange={handleEndTimeOptionalChange}
+          disabled={!startTimeOptional}
+        />
+      </div>
+
       <button
         onClick={handleConfirm}
         disabled={isPendingCreate}
@@ -196,6 +265,33 @@ const TimeSelect = ({ label, value, options, onChange }: TimeSelectProps) => (
       onChange={(e) => onChange(e.target.value)}
       className="border rounded px-2 py-1 focus:ring-prim-500 focus:border-prim-500"
     >
+      {options.map((time) => (
+        <option key={time} value={time}>
+          {time}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+interface TimeSelectOptionalProps {
+  label: string;
+  value: string | null;
+  options: string[];
+  onChange: (value: string | null) => void;
+  disabled?: boolean;
+}
+
+const TimeSelectOptional = ({ label, value, options, onChange, disabled = false }: TimeSelectOptionalProps) => (
+  <div className="flex flex-col flex-1">
+    <label className="text-sm font-medium mb-1">{label}</label>
+    <select
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value || null)}
+      disabled={disabled}
+      className={`border rounded px-2 py-1 focus:ring-prim-500 focus:border-prim-500 ${disabled ? "bg-gray-100" : ""}`}
+    >
+      <option value="">No especificado</option>
       {options.map((time) => (
         <option key={time} value={time}>
           {time}
