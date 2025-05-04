@@ -216,41 +216,48 @@ const Turnos: React.FC = () => {
 
             {selectedProfessional && selectedDate && selectedAppointment && (
               <Dialog open={openModal}>
-                <DialogTrigger
-                  onClick={() => setOpenModal(true)}
-                  className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  Solicitar Turno
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Turno</DialogTitle>
-                    <DialogDescription>
-                      <p className="mt-2">Profesional: {selectedProfessional}</p>
-                      <p className="mt-2 font-bold">
+              <DialogTrigger
+                onClick={() => setOpenModal(true)}
+                className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg transition-all duration-200 transform hover:scale-105"
+              >
+                Solicitar Turno
+              </DialogTrigger>
+              <DialogContent className="max-w-md rounded-lg bg-white p-6 shadow-xl">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold text-gray-800 border-b pb-2">
+                    Solicitud de Turno
+                  </DialogTitle>
+                  <DialogDescription className="mt-4 space-y-4">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <p className="text-lg font-semibold text-blue-800 mb-1">Fecha seleccionada:</p>
+                      <p className="text-2xl font-bold text-blue-600">
                         {selectedDate?.toLocaleDateString("es-ES", {
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
                         })}
                       </p>
-                      <p className="mt-2">
-                        Hora: {selectedAppointment.start_time.slice(0, 5)}
+                      
+                      <p className="text-lg font-semibold text-blue-800 mt-3 mb-1">Hora seleccionada:</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {selectedAppointment.start_time.slice(0, 5)} hs
                       </p>
-                      <FormCreateTurno
-                        id={selectedAppointment.id}
-                        modal={setOpenModal}
-                      />
-                    </DialogDescription>
-                  </DialogHeader>
-                  <button
-                    className="bg-red-500 w-min text-white px-3 py-2 rounded-lg"
-                    onClick={() => setOpenModal(false)}
-                  >
-                    Salir
-                  </button>
-                </DialogContent>
-              </Dialog>
+                    </div>
+            
+                    <FormCreateTurno
+                      id={selectedAppointment.id}
+                      modal={setOpenModal}
+                    />
+                  </DialogDescription>
+                </DialogHeader>
+                <button
+                  className="mt-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 shadow transition-all duration-200 self-end"
+                  onClick={() => setOpenModal(false)}
+                >
+                  Cerrar
+                </button>
+              </DialogContent>
+            </Dialog>
             )}
           </>
         )}
