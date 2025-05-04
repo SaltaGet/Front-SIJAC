@@ -114,7 +114,7 @@ const Calendar: React.FC = () => {
       {selectedDate ? (
         filteredEvents.length > 0 ? (
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-lg font-semibold  text-blue-600 p-2 rounded-lg">
               Turnos Para el {formatearFecha(new Date(selectedDate))}
             </h3>
             <div className="flex flex-wrap gap-2">

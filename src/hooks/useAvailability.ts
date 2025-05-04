@@ -7,6 +7,7 @@ interface Schedule {
   date_all: string;
   start_time: string;
   end_time: string;
+
 }
 
 interface Availability {
@@ -15,6 +16,8 @@ interface Availability {
   start_time: string;
   end_time: string;
   disponibility: boolean;
+  start_time_optional?: string;
+  end_time_optional?: string;
 }
 
 const postAvailability = async (schedule: Schedule) => {
