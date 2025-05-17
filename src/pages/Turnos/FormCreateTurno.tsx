@@ -40,7 +40,7 @@ const FormCreateTurno: React.FC<Props> = ({ id, modal }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors },watch,
   } = useForm<FormData>();
 
   const onSubmit = (data: FormData) => {
@@ -98,18 +98,30 @@ const FormCreateTurno: React.FC<Props> = ({ id, modal }) => {
       </div>
 
       <div>
-        <label>Razón</label>
-        <textarea
-          {...register("reason", { required: true, maxLength: 50 })}
-          className="border p-2 w-full"
-        />
-        {errors.reason?.type === "required" && (
-          <span className="text-red-500">Obligatorio</span>
-        )}
-        {errors.reason?.type === "maxLength" && (
-          <span className="text-red-500">Máximo 50 caracteres</span>
-        )}
-      </div>
+  <label>Razón</label>
+  <textarea
+    {...register("reason", { 
+      required: true, 
+      maxLength: 100 
+    })}
+    className="border p-2 w-full"
+    maxLength={100}
+    onChange={(e) => {
+      // Actualizar el valor mientras escribe
+      register("reason").onChange(e);
+      // También puedes manejar el valor aquí si necesitas
+    }}
+  />
+  <div className="text-sm text-gray-500 text-right">
+    {watch("reason")?.length || 0}/100 caracteres
+  </div>
+  {errors.reason?.type === "required" && (
+    <span className="text-red-500">Obligatorio</span>
+  )}
+  {errors.reason?.type === "maxLength" && (
+    <span className="text-red-500">Máximo 100 caracteres</span>
+  )}
+</div>
 
       <button
         type="submit"

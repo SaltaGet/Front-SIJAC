@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { FaWhatsapp } from "react-icons/fa";
+import { FaGoogle} from "react-icons/fa"; // Puedes usar FaGoogle o FaCalendarAlt
 import { Appointment, useAppointment } from "@/hooks/admin/useAppointment";
 import { formatearFecha } from "@/util/formatFecha";
 import AdminEditAppointment from "@/pages/Admin/AdminEditAppointment";
@@ -214,6 +215,10 @@ const Calendar: React.FC = () => {
               label="Cerrar"
             />
 
+            {selectedEvent.state === "aceptado" && (
+              <GoogleCalendarButton event={selectedEvent} />
+            )}
+
             {selectedEvent?.state !== "rechazado" && !isLoadingAppointments && (
               <ActionButton
                 onClick={() => handleStatusUpdate("rechazado")}
@@ -244,20 +249,21 @@ const Calendar: React.FC = () => {
         </Accordion>
       )}
 
-{filteredEvents.length > 0 && (
-  <Button
-    onClick={() => {
-      const confirmDelete = window.confirm("¿Estás seguro? y los turnos que estén aceptados y pendientes seran Rechazados automáticamente");
-      if (confirmDelete) {
-        mutateDelete(filteredEvents[0].availability_id);
-      }
-    }}
-    disabled={isPendingDelete}
-  >
-    {isPendingDelete ? "Borrando..." : "Borrar Fecha"}
-  </Button>
-)}
-
+      {filteredEvents.length > 0 && (
+        <Button
+          onClick={() => {
+            const confirmDelete = window.confirm(
+              "¿Estás seguro? y los turnos que estén aceptados y pendientes seran Rechazados automáticamente"
+            );
+            if (confirmDelete) {
+              mutateDelete(filteredEvents[0].availability_id);
+            }
+          }}
+          disabled={isPendingDelete}
+        >
+          {isPendingDelete ? "Borrando..." : "Borrar Fecha"}
+        </Button>
+      )}
     </div>
   );
 };
@@ -324,5 +330,37 @@ const WhatsAppButton: React.FC<{ phone: string; disabled: boolean }> = ({
     <FaWhatsapp size={20} />
   </a>
 );
+
+const GoogleCalendarButton: React.FC<{ event: Appointment }> = ({ event }) => {
+  const formatToGoogleCalendarDate = (dateString: string, timeString: string) => {
+    const [year, month, day] = dateString.split("-");
+    const [hours, minutes] = timeString.slice(0, 5).split(":");
+    const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+    return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  };
+
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&dates=${formatToGoogleCalendarDate(
+    event.date_get,
+    event.start_time
+  )}/${formatToGoogleCalendarDate(
+    event.date_get,
+    event.end_time
+  )}&text=Turno+con+${encodeURIComponent(
+    event.full_name || "Cliente"
+  )}&details=Razón:+${encodeURIComponent(event.reason || "Sin razón especificada")}`;
+
+  return (
+    <a
+      href={googleCalendarUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 transition"
+    >
+      <FaGoogle size={16} /> {/* Opción 1: Ícono de Google */}
+      {/* <FaCalendarAlt size={16} /> Opción 2: Ícono de calendario */}
+      <span>Agregar a Calendar</span>
+    </a>
+  );
+};
 
 export default Calendar;
