@@ -8,6 +8,7 @@ interface FormData {
   body: string;
   categories: string;
   image: FileList;
+  favorite: boolean;
 }
 
 const FormCreatePost: React.FC = () => {
@@ -17,7 +18,11 @@ const FormCreatePost: React.FC = () => {
     formState: { errors },
     watch,
     reset,
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      favorite: false // Valor por defecto para el checkbox
+    }
+  });
 
   const { createPost, createStatus, isPosting } = usePost();
 
@@ -144,22 +149,21 @@ const FormCreatePost: React.FC = () => {
             Seleccionar imagen
           </label>
           <input
-  id="image"
-  type="file"
-  accept="image/*"
-  {...register("image", {
-    required: "la imagen es obligatoria",
-    validate: {
-      lessThan2MB: (files) =>
-        files && files[0]?.size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
-      acceptedFormats: (files) =>
-        files &&
-        ["image/jpeg", "image/png", "image/webp"].includes(files[0]?.type) ||
-        "formato no permitido (solo jpg, png o webp)",
-    },
-  })}
-/>
-
+            id="image"
+            type="file"
+            accept="image/*"
+            {...register("image", {
+              required: "la imagen es obligatoria",
+              validate: {
+                lessThan2MB: (files) =>
+                  files && files[0]?.size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
+                acceptedFormats: (files) =>
+                  files &&
+                  ["image/jpeg", "image/png", "image/webp"].includes(files[0]?.type) ||
+                  "formato no permitido (solo jpg, png o webp)",
+              },
+            })}
+          />
         </div>
         {errors.image && (
           <span className="text-sm text-red-600">{errors.image.message}</span>
@@ -172,6 +176,19 @@ const FormCreatePost: React.FC = () => {
             className="w-48 h-48 object-cover rounded-md border border-gray-300 mt-2"
           />
         )}
+      </div>
+
+      {/* checkbox favorite */}
+      <div className="flex items-center">
+        <input
+          id="favorite"
+          type="checkbox"
+          {...register("favorite")}
+          className="h-4 w-4 text-gray-800 focus:ring-gray-800 border-gray-300 rounded"
+        />
+        <label htmlFor="favorite" className="ml-2 block text-sm text-gray-900">
+          Fijar
+        </label>
       </div>
 
       {/* botón enviar */}

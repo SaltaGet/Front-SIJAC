@@ -29,11 +29,11 @@ interface BlogResponse {
 }
 
 const fetchBlogs = async ({ pageParam = 1 }): Promise<BlogResponse> => {
-  const { data } = await apiSijac.get<BlogResponse>(`/blog/get_all?page=${pageParam}`)
+  const { data } = await apiSijac.get<BlogResponse>(`/blog/get_favorites?page=${pageParam}`)
   return data
 }
 
-export function usePostGet() {
+export function usePostGetFavorite() {
   const {
     data,
     error,
@@ -43,7 +43,7 @@ export function usePostGet() {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["blogs"],
+    queryKey: ["blogs-favorite"],
     queryFn: fetchBlogs,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {

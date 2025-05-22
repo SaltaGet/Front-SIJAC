@@ -59,24 +59,24 @@ const BlogDetails = () => {
         <div className="p-6">
           <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
           <Linkify
-  componentDecorator={(decoratedHref, decoratedText, key) => (
-    <a
-      href={decoratedHref}
-      key={key}
-      style={{
-        color: "#3b82f6",
-        textDecoration: "underline",
-        fontWeight: "500",
-      }}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {decoratedText}
-    </a>
-  )}
->
-  <div style={{ whiteSpace: 'pre-line' }}>{body}</div>
-</Linkify>
+            componentDecorator={(decoratedHref, decoratedText, key) => (
+              <a
+                href={decoratedHref}
+                key={key}
+                style={{
+                  color: "#3b82f6",
+                  textDecoration: "underline",
+                  fontWeight: "500",
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {decoratedText}
+              </a>
+            )}
+          >
+            <div style={{ whiteSpace: "pre-line" }}>{body}</div>
+          </Linkify>
           {/* <p className="mt-4 text-gray-600">{body}</p> */}
 
           <div className="mt-4 text-gray-500 text-sm">

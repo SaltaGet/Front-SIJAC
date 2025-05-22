@@ -1,121 +1,91 @@
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CalendarApointment from "@/components/time-calendar/CalendarApointment";
 import CalendarSelector from "@/components/time-calendar/CalendarSelector";
+import useAuthStore from "@/store/useAuthStore";
 import FormCreatePost from "./FormCreatePost";
 import AdimEditPost from "./AdminEditBlog";
-import useAuthStore from "@/store/useAuthStore";
-import { useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import AdminClients from "./AdminClients";
+import AdminCases from "./AdminCases";
+
+const SECTIONS = [
+  { id: "selector", label: "Crear Turnos" },
+  { id: "appointment", label: "Turnos" },
+  { id: "createPost", label: "Crear Post" },
+  { id: "editPost", label: "Tus Posteos" },
+  { id: "clients", label: "Clientes" },
+  { id: "cases", label: "Casos" },
+] as const;
+
+type Section = typeof SECTIONS[number]['id'];
 
 const Admin = () => {
-  const [activeSection, setActiveSection] = useState<
-    "selector" | "appointment" | "createPost" | "editPost" | "appointment-edit"
-  >("selector");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<Section>("selector");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { token, clearAuth } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate, token]);
+    if (!token) navigate("/login");
+  }, [token, navigate]);
 
   const handleLogout = () => {
     clearAuth();
     navigate("/login");
   };
 
+  const handleSectionChange = (section: Section) => {
+    setActiveSection(section);
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row">
-      {/* Botón Hamburguesa */}
-      <div className="flex justify-between items-center md:hidden p-4 bg-prim-100 border-b">
+    <div className="min-h-screen flex flex-col md:flex-row bg-prim-50">
+      {/* Mobile Header */}
+      <header className="md:hidden flex justify-between items-center p-4 bg-prim-100 border-b border-prim-200">
         <h2 className="text-lg font-semibold text-prim-700">Admin Panel</h2>
-        <button onClick={() => setIsMenuOpen((prev) => !prev)}>
-          <Menu className="text-prim-700 w-6 h-6" />
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-prim-700">
+          <Menu className="w-6 h-6" />
         </button>
-      </div>
+      </header>
 
-      {/* Barra lateral */}
-      <aside
-        className={`${
-          isMenuOpen ? "block" : "hidden"
-        } md:block w-full md:w-64 bg-prim-100 border-b md:border-b-0 md:border-r p-4`}
-      >
-        <h2 className="text-lg font-semibold text-prim-700 mb-4 hidden md:block">
-          Admin Panel
-        </h2>
-
-        {/* nav en fila para mobile, columna para desktop */}
-        <nav className="flex flex-col gap-2 h-full">
-          <button
-            onClick={() => {
-              setActiveSection("selector");
-              setIsMenuOpen(false);
-            }}
-            className={`p-2 rounded ${
-              activeSection === "selector"
-                ? "bg-prim-500 text-white"
-                : "hover:bg-prim-200 text-prim-800"
-            }`}
-          >
-            Crear Turnos
-          </button>
-          <button
-            onClick={() => {
-              setActiveSection("appointment");
-              setIsMenuOpen(false);
-            }}
-            className={`p-2 rounded ${
-              activeSection === "appointment"
-                ? "bg-prim-500 text-white"
-                : "hover:bg-prim-200 text-prim-800"
-            }`}
-          >
-            Turnos
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveSection("createPost");
-              setIsMenuOpen(false);
-            }}
-            className={`p-2 rounded ${
-              activeSection === "createPost"
-                ? "bg-prim-500 text-white"
-                : "hover:bg-prim-200 text-prim-800"
-            }`}
-          >
-            Crear Post
-          </button>
-          <button
-            onClick={() => {
-              setActiveSection("editPost");
-              setIsMenuOpen(false);
-            }}
-            className={`p-2 rounded ${
-              activeSection === "editPost"
-                ? "bg-prim-500 text-white"
-                : "hover:bg-prim-200 text-prim-800"
-            }`}
-          >
-            Tus Posteos
-          </button>
+      {/* Sidebar */}
+      <aside className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-64 bg-prim-100 border-r border-prim-200 p-4`}>
+        <h2 className="text-lg font-semibold text-prim-700 mb-4 hidden md:block">Admin Panel</h2>
+        
+        <nav className="flex flex-col space-y-2">
+          {SECTIONS.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => handleSectionChange(id)}
+              className={`p-3 rounded-md text-left transition-colors ${
+                activeSection === id 
+                  ? 'bg-prim-500 text-white' 
+                  : 'text-prim-800 hover:bg-prim-200'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+          
           <button
             onClick={handleLogout}
-            className="p-2 rounded bg-red-500 text-white font-semibold mt-8 "
+            className="mt-6 p-3 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
           >
             Cerrar Sesión
           </button>
         </nav>
       </aside>
 
-      {/* Contenido */}
-      <main className="flex-1 p-4">
+      {/* Main Content */}
+      <main className="flex-1 p-4 md:p-6 overflow-auto">
         {activeSection === "selector" && <CalendarSelector />}
         {activeSection === "appointment" && <CalendarApointment />}
         {activeSection === "createPost" && <FormCreatePost />}
         {activeSection === "editPost" && <AdimEditPost />}
+        {activeSection === "clients" && <AdminClients />}
+        {activeSection === "cases" && <AdminCases />}
       </main>
     </div>
   );

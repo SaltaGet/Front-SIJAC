@@ -11,6 +11,7 @@ interface Blog {
   categories: string;
   created_at: string;
   updated_at: string;
+  favorite: boolean; // Asegúrate de que la interfaz Blog incluya este campo
   user: {
     id: string;
     email: string;
@@ -26,11 +27,11 @@ interface FormData {
   body: string;
   categories: string;
   image?: FileList;
+  favorite: boolean; // Corregí el typo "favorte" a "favorite"
 }
 
 interface FormEditPostProps {
-  blog: Blog; // El blog que se va a editar
-  
+  blog: Blog;
 }
 
 const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
@@ -39,25 +40,30 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
     handleSubmit,
     formState: { errors },
     watch,
-    reset, // Agregar reset
-  } = useForm<FormData>();
+    reset,
+  } = useForm<FormData>({
+    defaultValues: {
+      favorite: blog.favorite // Establecer el valor inicial desde el blog
+    }
+  });
 
   const [preview, setPreview] = useState<string | null>(blog.url_image);
   const [showSuccess, setShowSuccess] = useState(false);
-  const {editPost,isEditing,removePost, isDeleting, resetStatuses, deleteStatus} = usePost()
+  const { editPost, isEditing, removePost, isDeleting, resetStatuses, deleteStatus } = usePost();
 
   const imageFile = watch("image");
 
   useEffect(() => {
-    resetStatuses()
+    resetStatuses();
     // Resetear los valores del formulario cuando cambia el blog
     reset({
       title: blog.title,
       body: blog.body,
       categories: blog.categories,
+      favorite: blog.favorite // Incluir el valor de favorite al resetear
     });
-    setPreview(blog.url_image); // Actualiza la vista previa de la imagen
-  }, [blog, reset]); // Dependencia en blog para resetear cuando cambie
+    setPreview(blog.url_image);
+  }, [blog, reset]);
 
   useEffect(() => {
     if (imageFile && imageFile.length > 0) {
@@ -72,7 +78,6 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
     }
   }, [imageFile, blog.url_image]);
 
-  // Ocultar mensaje de éxito si cambia algo
   useEffect(() => {
     if (showSuccess) setShowSuccess(false);
   }, [watch()]);
@@ -80,26 +85,24 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
   const onSubmit = (data: FormData) => {
     const formData = {
       ...data,
-      image: imageFile?.length ? imageFile : undefined,  // Usar FileList o undefined
+      image: imageFile?.length ? imageFile : undefined,
     };
   
     const payload = {
       blog_id: blog.id,
-      formData,  // Pasar formData tal como está
+      formData,
     };
   
     console.log("Formulario enviado con los siguientes datos:", payload);
-    editPost(payload); // Pasar payload a editPost
+    editPost(payload);
     setShowSuccess(true);
   };
-  
 
   const handleDelete = () => {
-    removePost(blog.id)
-
+    removePost(blog.id);
   };
 
-  if(deleteStatus === "success") return <div>Post Borrado</div>
+  if (deleteStatus === "success") return <div>Post Borrado</div>;
 
   return (
     <form
@@ -190,21 +193,20 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
             Seleccionar imagen
           </label>
           <input
-  id="image"
-  type="file"
-  accept="image/*"
-  {...register("image", {
-    validate: {
-      lessThan2MB: (files) =>
-        !files?.[0] || files[0].size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
-      acceptedFormats: (files) =>
-        !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
-        "formato no permitido (solo jpg, png o webp)",
-    },
-  })}
-  className="hidden"
-/>
-
+            id="image"
+            type="file"
+            accept="image/*"
+            {...register("image", {
+              validate: {
+                lessThan2MB: (files) =>
+                  !files?.[0] || files[0].size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
+                acceptedFormats: (files) =>
+                  !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
+                  "formato no permitido (solo jpg, png o webp)",
+              },
+            })}
+            className="hidden"
+          />
         </div>
 
         {preview && (
@@ -216,24 +218,47 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
         )}
       </div>
 
+      {/* checkbox favorite */}
+      <div className="flex items-center">
+        <input
+          id="favorite"
+          type="checkbox"
+          {...register("favorite")}
+          className="h-4 w-4 text-gray-800 focus:ring-gray-800 border-gray-300 rounded"
+        />
+        <label htmlFor="favorite" className="ml-2 block text-sm text-gray-900">
+          Fijar
+        </label>
+      </div>
+
       {/* botones */}
       <div className="flex gap-4">
-        {!isEditing ? <button
-          type="submit"
-          className="bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition"
-        >
-          Actualizar post
-        </button>: <label className="bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition">Editando</label>}
+        {!isEditing ? (
+          <button
+            type="submit"
+            className="bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition"
+          >
+            Actualizar post
+          </button>
+        ) : (
+          <label className="bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition">
+            Editando
+          </label>
+        )}
 
-        {!isDeleting ? <button
-          type="button"
-          onClick={handleDelete}
-          className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition"
-        >
-          Borrar post
-        </button>: <label className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition">
+        {!isDeleting ? (
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition"
+          >
+            Borrar post
+          </button>
+        ) : (
+          <label className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition">
             Borrando
-            </label>}
+          </label>
+        )}
       </div>
 
       {/* mensajes de estado */}

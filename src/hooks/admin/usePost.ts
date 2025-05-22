@@ -3,12 +3,14 @@ import useAuthStore from "@/store/useAuthStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+
 // Interfaz para la creación de un post
 interface FormData {
   title: string;
   body: string;
   categories: string;
   image: FileList; // En la creación, la imagen siempre se espera
+  favorite: boolean
 }
 
 // Interfaz para la actualización de un post (imagen opcional)
@@ -17,6 +19,7 @@ interface UpdateFormData {
   body: string;
   categories: string;
   image?: FileList; // La imagen es opcional para la actualización
+  favorite: boolean
 }
 
 
@@ -29,6 +32,7 @@ const postData = async (formData: FormData) => {
   dataToSend.append("body", formData.body);
   dataToSend.append("categories", formData.categories);
   dataToSend.append("image", formData.image[0]);
+  dataToSend.append("favorite", formData.favorite.toString());
 
   const response = await apiSijac.post("/blog/create", dataToSend, {
     headers: {
@@ -53,6 +57,7 @@ const updateData = async ({
   dataToSend.append("title", formData.title);
   dataToSend.append("body", formData.body);
   dataToSend.append("categories", formData.categories);
+  dataToSend.append("favorite", formData.favorite.toString());
 
   // Solo añadir la imagen si existe
   if (formData.image && formData.image.length > 0) {
@@ -88,6 +93,7 @@ export function usePost() {
   const queryClient = useQueryClient();
   const refetchPost = () => {
     queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    queryClient.invalidateQueries({ queryKey: ["blogs-favorite"] });
   };
 
   const { mutate: createPost, isPending: isPosting } = useMutation({
