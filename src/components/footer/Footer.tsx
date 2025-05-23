@@ -85,18 +85,17 @@ const Footer: React.FC = () => {
         <div>
           <h4 className="font-semibold mb-2">Contacto</h4>
           <p className="text-sm mb-1">
-            Tel: (0387) 123-4567 <br />
             Email: contacto@sijac.com
           </p>
           <p className="text-sm">
             Dirección:{" "}
             <a
-              href="https://www.google.com/maps/place/Salta,+Argentina"
+              href="https://maps.app.goo.gl/4KhMCJwxjJm2m3ro9"
               target="_blank"
               rel="noopener noreferrer"
               className="text-prim-500 hover:underline"
             >
-              Av. Siempreviva 742, Salta
+              Calle 25 de Mayo 427, Salta Capital
             </a>
           </p>
         </div>
