@@ -180,43 +180,50 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
       </div>
 
       {/* imagen */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="image" className="text-gray-900 font-medium">
-          Imagen *
-        </label>
-        <div className="flex items-center gap-3">
-          <label
-            htmlFor="image"
-            className="cursor-pointer flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-900 px-4 py-2 rounded-md transition"
-          >
-            <FaImage />
-            Seleccionar imagen
-          </label>
-          <input
-            id="image"
-            type="file"
-            accept="image/*"
-            {...register("image", {
-              validate: {
-                lessThan2MB: (files) =>
-                  !files?.[0] || files[0].size < 2 * 1024 * 1024 || "la imagen debe pesar menos de 2MB",
-                acceptedFormats: (files) =>
-                  !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
-                  "formato no permitido (solo jpg, png o webp)",
-              },
-            })}
-            className="hidden"
-          />
-        </div>
+<div className="flex flex-col gap-2">
+  <label htmlFor="image" className="text-gray-900 font-medium">
+    Imagen *
+  </label>
+  <div className="flex items-center gap-3">
+    <label
+      htmlFor="image"
+      className="cursor-pointer flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-900 px-4 py-2 rounded-md transition"
+    >
+      <FaImage />
+      Seleccionar imagen
+    </label>
+    <input
+      id="image"
+      type="file"
+      accept="image/*"
+      {...register("image", {
+        validate: {
+          lessThan2MB: (files) =>
+            !files?.[0] || files[0].size < 2 * 1024 * 1024 || "La imagen debe pesar menos de 2MB",
+          acceptedFormats: (files) =>
+            !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
+            "Formato no permitido (solo jpg, png o webp)",
+        },
+      })}
+      className="hidden"
+    />
+  </div>
 
-        {preview && (
-          <img
-            src={preview}
-            alt="preview"
-            className="w-48 h-48 object-cover rounded-md border border-gray-300 mt-2"
-          />
-        )}
-      </div>
+  {/* Mostrar errores de validación */}
+  {errors.image && (
+    <p className="text-red-500 text-sm mt-1">
+      {errors.image.message}
+    </p>
+  )}
+
+  {preview && (
+    <img
+      src={preview}
+      alt="preview"
+      className="w-48 h-48 object-cover rounded-md border border-gray-300 mt-2"
+    />
+  )}
+</div>
 
       {/* checkbox favorite */}
       <div className="flex items-center">
