@@ -20,6 +20,7 @@ export interface CaseClient {
   phone: string;
   created_at: string;
   updated_at: string;
+  owner: boolean;
 }
 
 export interface CaseDetails {

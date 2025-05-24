@@ -1,7 +1,9 @@
+import apiSijac from "@/api/sijac";
 import { Case } from "@/hooks/admin/useCase/useCaseAll";
 import { useCaseDetails } from "@/hooks/admin/useCaseDetails";
 import { useUser } from "@/hooks/client/useUser";
 import useAuthStore from "@/store/useAuthStore";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 interface CaseDetailsProps {
@@ -10,20 +12,67 @@ interface CaseDetailsProps {
   onClose: () => void;
 }
 
+const shareCase = async ({idCase, idUserShare}: {idCase: string, idUserShare: string}) => {
+  const token = useAuthStore.getState().token;
+  const {data} = await apiSijac.put(`/case/share_case/${idCase}?user_shared=${idUserShare}`, {}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
+const unshareCase = async ({idCase, idUserShare}: {idCase: string, idUserShare: string}) => {
+  const token = useAuthStore.getState().token;
+  const {data} = await apiSijac.put(`/case/unshare_case/${idCase}?user_shared=${idUserShare}`, {}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+}
+
 export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => {
   const { caseDetails, isLoading, error, refetchCaseDetails } = useCaseDetails(
     caseItem.id
   );
 
   const { userId } = useAuthStore();
-  const { usersData } = useUser(); // Obtener todos los usuarios
+  const { usersData } = useUser();
 
-  // Refetch data when modal opens
+  const {mutate: shareMutate} = useMutation({
+    mutationFn: shareCase,
+    onSuccess: () => {
+      refetchCaseDetails();
+    },
+    onError: () => {
+      alert("Error al compartir el caso");
+    }
+  });
+
+  const {mutate: unshareMutate} = useMutation({
+    mutationFn: unshareCase,
+    onSuccess: () => {
+      refetchCaseDetails();
+    },
+    onError: () => {
+      alert("Error al descompartir el caso");
+    }
+  });
+
   useEffect(() => {
     if (isOpen) {
       refetchCaseDetails();
     }
   }, [isOpen, refetchCaseDetails]);
+
+  const handleShareToggle = (userId: string, isCurrentlyShared: boolean) => {
+    if (isCurrentlyShared) {
+      unshareMutate({idCase: caseItem.id, idUserShare: userId});
+    } else {
+      shareMutate({idCase: caseItem.id, idUserShare: userId});
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -53,7 +102,6 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
     );
   }
 
-  // Función para verificar si un usuario está asignado al caso
   const isUserAssigned = (userId: string) => {
     return caseDetails.users?.some(user => user.id === userId) || false;
   };
@@ -143,27 +191,32 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
               <div className="col-span-2">
                 <h3 className="font-medium text-gray-700">Compartir:</h3>
                 <div className="mt-2 space-y-2">
-                  {usersData?.filter(user => user.id !== userId).map((user) => (
-                    <div
-                      key={user.id}
-                      className="flex items-center justify-between space-x-3 p-2 bg-gray-50 rounded"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div>
-                          <p className="font-medium">
-                            {user.first_name} {user.last_name}
-                          </p>
+                  {usersData?.filter(user => user.id !== userId).map((user) => {
+                    const isShared = isUserAssigned(user.id);
+                    return (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between space-x-3 p-2 bg-gray-50 rounded"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div>
+                            <p className="font-medium">
+                              {user.first_name} {user.last_name}
+                            </p>
+                          </div>
                         </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isShared}
+                            onChange={() => handleShareToggle(user.id, isShared)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
                       </div>
-                      <span className="text-lg font-bold">
-                        {isUserAssigned(user.id) ? (
-                          <span className="text-green-500">✓</span>
-                        ) : (
-                          <span className="text-red-500">✗</span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
