@@ -8,6 +8,7 @@ import FormCreatePost from "./FormCreatePost";
 import AdimEditPost from "./AdminEditBlog";
 import AdminClients from "./AdminClients";
 import AdminCases from "./AdminCases";
+import AdminAssigTurn from "./AdminAssigTurn";
 
 const SECTIONS = [
   { id: "selector", label: "Crear Turnos" },
@@ -16,6 +17,7 @@ const SECTIONS = [
   { id: "editPost", label: "Tus Posteos" },
   { id: "clients", label: "Clientes" },
   { id: "cases", label: "Casos" },
+  { id: "assig-turn", label: "Asignar Turno" },
 ] as const;
 
 type Section = typeof SECTIONS[number]['id'];
@@ -86,6 +88,7 @@ const Admin = () => {
         {activeSection === "editPost" && <AdimEditPost />}
         {activeSection === "clients" && <AdminClients />}
         {activeSection === "cases" && <AdminCases />}
+        {activeSection === "assig-turn" && <AdminAssigTurn />}
       </main>
     </div>
   );
