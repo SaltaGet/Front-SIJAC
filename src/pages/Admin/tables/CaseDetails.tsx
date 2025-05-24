@@ -60,11 +60,12 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
     }
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      refetchCaseDetails();
-    }
-  }, [isOpen, refetchCaseDetails]);
+useEffect(() => {
+    console.log("entrando al effect con caseItem.id:", caseItem.id);
+  if (isOpen) {
+    refetchCaseDetails();
+  }
+}, [isOpen, caseItem.id, refetchCaseDetails]); // Añade caseItem.id como dependencia
 
   const handleShareToggle = (userId: string, isCurrentlyShared: boolean) => {
     if (isCurrentlyShared) {
@@ -89,6 +90,7 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
   if (error || !caseDetails) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        
         <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
           <p>Error al cargar los detalles del caso</p>
           <button
@@ -108,12 +110,14 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        
       <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <h2 className="text-xl font-bold text-gray-800">
               Detalles del Caso
             </h2>
+            <h1>{caseItem.id}</h1>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
@@ -188,7 +192,7 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
                 </p>
               </div>
 
-              <div className="col-span-2">
+              {caseDetails.owner &&<div className="col-span-2">
                 <h3 className="font-medium text-gray-700">Compartir:</h3>
                 <div className="mt-2 space-y-2">
                   {usersData?.filter(user => user.id !== userId).map((user) => {
@@ -218,7 +222,7 @@ export const CaseDetails = ({ caseItem, isOpen, onClose }: CaseDetailsProps) => 
                     );
                   })}
                 </div>
-              </div>
+              </div>}
             </div>
           </div>
         </div>

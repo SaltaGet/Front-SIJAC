@@ -136,6 +136,7 @@ export const TableCases = () => {
 
 
   const handleViewDetails = (caseItem: Case) => {
+    console.log(caseItem.id);
     setSelectedCase(caseItem);
   };
 
@@ -338,6 +339,7 @@ export const TableCases = () => {
 
       {selectedCase && (
         <CaseDetails
+          key={selectedCase.id}
           caseItem={selectedCase}
           isOpen={!!selectedCase}
           onClose={handleCloseDetails}

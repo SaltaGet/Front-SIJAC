@@ -1,6 +1,6 @@
 import apiSijac from "@/api/sijac";
 import useAuthStore from "@/store/useAuthStore";
-import { useQuery } from "@tanstack/react-query";
+import { QueryFunctionContext, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface CaseUser {
   id: string;
@@ -20,7 +20,7 @@ export interface CaseClient {
   phone: string;
   created_at: string;
   updated_at: string;
-  owner: boolean;
+  
 }
 
 export interface CaseDetails {
@@ -31,9 +31,12 @@ export interface CaseDetails {
   created_at: string;
   updated_at: string;
   users: CaseUser[];
+  owner: boolean;
 }
 
-const fetchCaseDetails = async (caseId: string) => {
+const fetchCaseDetails = async (ctx: QueryFunctionContext) => {
+    const [_, caseId] = ctx.queryKey;
+    void _;
     const token = useAuthStore.getState().token;
   const { data } = await apiSijac.get<CaseDetails>(`/case/get/${caseId}`,{
     headers: {
@@ -44,12 +47,19 @@ const fetchCaseDetails = async (caseId: string) => {
 };
 
 export function useCaseDetails(caseId: string) {
-  const { data, isLoading, error, refetch } = useQuery({
+    const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
     queryKey: ["caseDetails", caseId],
-    queryFn: () => fetchCaseDetails(caseId),
+    queryFn: fetchCaseDetails,
     staleTime: Infinity,
     enabled: !!caseId, // Solo se ejecuta si caseId tiene valor
   });
+
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["caseDetails", caseId] });
+  };
+
+ 
 
   return { 
     caseDetails: data, 
