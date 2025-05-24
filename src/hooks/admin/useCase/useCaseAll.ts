@@ -13,6 +13,7 @@ export interface Case {
   };
   created_at: string;
   updated_at: string;
+  owner: boolean;
 }
 
 const getAllCases = async (): Promise<Case[]> => {

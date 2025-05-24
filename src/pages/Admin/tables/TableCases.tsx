@@ -24,6 +24,7 @@ interface Case {
   };
   created_at: string;
   updated_at: string;
+  owner: boolean;
 }
 
 interface EditableCaseFields {
@@ -133,7 +134,6 @@ export const TableCases = () => {
       deleteMutation.mutate(id);
     }
   };
-
 
   const handleViewDetails = (caseItem: Case) => {
     console.log(caseItem.id);
@@ -291,30 +291,35 @@ export const TableCases = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(caseItem.updated_at).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex justify-end space-x-4">
                           <button
                             onClick={() => handleViewDetails(caseItem)}
-                            className="text-gray-600 hover:text-gray-900"
+                            className="text-gray-600 hover:text-gray-900 transition-colors"
                             title="Ver detalles"
                           >
-                            <FiEye className="h-4 w-4" />
+                            <FiEye className="h-5 w-5" />
                           </button>
-                          <button
-                            onClick={() => handleEditClick(caseItem)}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            title="Editar"
-                          >
-                            <FiEdit2 className="h-4 w-4" />
-                          </button>
-                          
-                          <button
-                            onClick={() => handleDelete(caseItem.id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Eliminar"
-                          >
-                            <FiTrash2 className="h-4 w-4" />
-                          </button>
+
+                          {caseItem.owner && (
+                            <>
+                              <button
+                                onClick={() => handleEditClick(caseItem)}
+                                className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                title="Editar"
+                              >
+                                <FiEdit2 className="h-5 w-5" />
+                              </button>
+
+                              <button
+                                onClick={() => handleDelete(caseItem.id)}
+                                className="text-red-600 hover:text-red-900 transition-colors"
+                                title="Eliminar"
+                              >
+                                <FiTrash2 className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </>
