@@ -43,13 +43,20 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
     reset,
   } = useForm<FormData>({
     defaultValues: {
-      favorite: blog.favorite // Establecer el valor inicial desde el blog
-    }
+      favorite: blog.favorite, // Establecer el valor inicial desde el blog
+    },
   });
 
   const [preview, setPreview] = useState<string | null>(blog.url_image);
   const [showSuccess, setShowSuccess] = useState(false);
-  const { editPost, isEditing, removePost, isDeleting, resetStatuses, deleteStatus } = usePost();
+  const {
+    editPost,
+    isEditing,
+    removePost,
+    isDeleting,
+    resetStatuses,
+    deleteStatus,
+  } = usePost();
 
   const imageFile = watch("image");
 
@@ -60,7 +67,7 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
       title: blog.title,
       body: blog.body,
       categories: blog.categories,
-      favorite: blog.favorite // Incluir el valor de favorite al resetear
+      favorite: blog.favorite, // Incluir el valor de favorite al resetear
     });
     setPreview(blog.url_image);
   }, [blog, reset]);
@@ -87,12 +94,12 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
       ...data,
       image: imageFile?.length ? imageFile : undefined,
     };
-  
+
     const payload = {
       blog_id: blog.id,
       formData,
     };
-  
+
     console.log("Formulario enviado con los siguientes datos:", payload);
     editPost(payload);
     setShowSuccess(true);
@@ -180,50 +187,53 @@ const FormEditPost: React.FC<FormEditPostProps> = ({ blog }) => {
       </div>
 
       {/* imagen */}
-<div className="flex flex-col gap-2">
-  <label htmlFor="image" className="text-gray-900 font-medium">
-    Imagen *
-  </label>
-  <div className="flex items-center gap-3">
-    <label
-      htmlFor="image"
-      className="cursor-pointer flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-900 px-4 py-2 rounded-md transition"
-    >
-      <FaImage />
-      Seleccionar imagen
-    </label>
-    <input
-      id="image"
-      type="file"
-      accept="image/*"
-      {...register("image", {
-        validate: {
-          lessThan2MB: (files) =>
-            !files?.[0] || files[0].size < 2 * 1024 * 1024 || "La imagen debe pesar menos de 2MB",
-          acceptedFormats: (files) =>
-            !files?.[0] || ["image/jpeg", "image/png", "image/webp"].includes(files[0].type) ||
-            "Formato no permitido (solo jpg, png o webp)",
-        },
-      })}
-      className="hidden"
-    />
-  </div>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="image" className="text-gray-900 font-medium">
+          Imagen *
+        </label>
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="image"
+            className="cursor-pointer flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-900 px-4 py-2 rounded-md transition"
+          >
+            <FaImage />
+            Seleccionar imagen
+          </label>
+          <input
+            id="image"
+            type="file"
+            accept="image/*"
+            {...register("image", {
+              validate: {
+                lessThan2MB: (files) =>
+                  !files?.[0] ||
+                  files[0].size < 2 * 1024 * 1024 ||
+                  "La imagen debe pesar menos de 2MB",
+                acceptedFormats: (files) =>
+                  !files?.[0] ||
+                  ["image/jpeg", "image/png", "image/webp"].includes(
+                    files[0].type
+                  ) ||
+                  "Formato no permitido (solo jpg, png o webp)",
+              },
+            })}
+            className="hidden"
+          />
+        </div>
 
-  {/* Mostrar errores de validación */}
-  {errors.image && (
-    <p className="text-red-500 text-sm mt-1">
-      {errors.image.message}
-    </p>
-  )}
+        {/* Mostrar errores de validación */}
+        {errors.image && (
+          <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+        )}
 
-  {preview && (
-    <img
-      src={preview}
-      alt="preview"
-      className="w-48 h-48 object-cover rounded-md border border-gray-300 mt-2"
-    />
-  )}
-</div>
+        {preview && (
+          <img
+            src={preview}
+            alt="preview"
+            className="w-48 h-48 object-cover rounded-md border border-gray-300 mt-2"
+          />
+        )}
+      </div>
 
       {/* checkbox favorite */}
       <div className="flex items-center">
