@@ -24,7 +24,7 @@ const shareCase = async ({idCase, idUserShare}: {idCase: string, idUserShare: st
 
 const unshareCase = async ({idCase, idUserShare}: {idCase: string, idUserShare: string}) => {
   const token = useAuthStore.getState().token;
-  const {data} = await apiSijac.put(`/case/unshare_case/${idCase}?user_shared=${idUserShare}`, {}, {
+  const {data} = await apiSijac.put(`/case/unshare_case/${idCase}?user_unshared=${idUserShare}`, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -117,7 +117,6 @@ useEffect(() => {
             <h2 className="text-xl font-bold text-gray-800">
               Detalles del Caso
             </h2>
-            <h1>{caseItem.id}</h1>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
