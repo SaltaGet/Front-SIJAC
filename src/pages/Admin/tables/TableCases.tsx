@@ -9,8 +9,9 @@ import {
   FiX,
   FiSearch,
   FiTrash2,
-  FiShare2,
+  FiEye,
 } from "react-icons/fi";
+import { CaseDetails } from "./CaseDetails";
 
 interface Case {
   id: string;
@@ -62,11 +63,11 @@ export const TableCases = () => {
     id: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const queryClient = useQueryClient();
 
-  // Ajustar altura del textarea según contenido
   useEffect(() => {
     if (textareaRef.current && editingId) {
       textareaRef.current.style.height = "auto";
@@ -133,8 +134,13 @@ export const TableCases = () => {
     }
   };
 
-  const handleShare = (id: string) => {
-    alert(`Función no implementada todavía: ${id}`);
+
+  const handleViewDetails = (caseItem: Case) => {
+    setSelectedCase(caseItem);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedCase(null);
   };
 
   const handleChange = (
@@ -287,19 +293,20 @@ export const TableCases = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
                           <button
+                            onClick={() => handleViewDetails(caseItem)}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Ver detalles"
+                          >
+                            <FiEye className="h-4 w-4" />
+                          </button>
+                          <button
                             onClick={() => handleEditClick(caseItem)}
                             className="text-indigo-600 hover:text-indigo-900"
                             title="Editar"
                           >
                             <FiEdit2 className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => handleShare(caseItem.id)}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Compartir"
-                          >
-                            <FiShare2 className="h-4 w-4" />
-                          </button>
+                          
                           <button
                             onClick={() => handleDelete(caseItem.id)}
                             className="text-red-600 hover:text-red-900"
@@ -328,6 +335,14 @@ export const TableCases = () => {
           </tbody>
         </table>
       </div>
+
+      {selectedCase && (
+        <CaseDetails
+          caseItem={selectedCase}
+          isOpen={!!selectedCase}
+          onClose={handleCloseDetails}
+        />
+      )}
     </div>
   );
 };
