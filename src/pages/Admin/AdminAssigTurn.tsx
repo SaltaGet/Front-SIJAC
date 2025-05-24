@@ -27,7 +27,7 @@ const AdminAssigTurn: React.FC = () => {
   const [hasAvailableDates, setHasAvailableDates] = useState(false);
 
   const { userId } = useAuthStore();
-  const { usersData } = useUser(false); // Eliminado isMediador
+  const { usersData } = useUser(false);
   const { appointmentsData } = useAppointmentClient(
     selectedProfessional ?? undefined,
     availabilityData?.find(
@@ -74,7 +74,6 @@ const AdminAssigTurn: React.FC = () => {
 
   const availableDates = availabilityData?.map((date) => formatDate(new Date(date.date_all))) ?? [];
 
-  // Seleccionar automáticamente el profesional que coincide con el userId
   useEffect(() => {
     if (usersData && userId) {
       const matchingProfessional = usersData.find(user => user.id === userId);
@@ -86,9 +85,8 @@ const AdminAssigTurn: React.FC = () => {
 
   return (
     <div className="flex flex-col text-gray-900">
-      {/* Turnos Section */}
       <section className="py-16 px-6 bg-white text-center" ref={turnosSectionRef}>
-        {selectedProfessional && (
+        {selectedProfessional ? (
           <>
             <h3 className="text-2xl font-semibold mb-4">
               Elige una Fecha y Hora Disponibles
@@ -162,7 +160,7 @@ const AdminAssigTurn: React.FC = () => {
             ) : (
               <div className="mt-8 p-4 bg-gray-100 rounded-lg max-w-md mx-auto">
                 <p className="text-lg text-white p-4 font-bold rounded-2xl bg-red-500">
-                  El profesional no tiene turnos disponibles en este momento.
+                  No hay turnos disponibles. Por favor, crea turnos primero.
                 </p>
               </div>
             )}
@@ -204,6 +202,12 @@ const AdminAssigTurn: React.FC = () => {
               </Dialog>
             )}
           </>
+        ) : (
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg max-w-md mx-auto">
+            <p className="text-lg text-white p-4 font-bold rounded-2xl bg-red-500">
+              No se encontró el profesional. Por favor, verifica tu usuario.
+            </p>
+          </div>
         )}
       </section>
     </div>
