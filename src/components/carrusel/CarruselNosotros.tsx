@@ -14,7 +14,7 @@ const images = [img1, img2, img3, img4, img5];
 
 export default function ImageCarousel() {
   return (
-    <div className="w-full max-w-5xl mx-auto py-8">
+    <div className="w-full max-w-7xl mx-auto py-8">
       <Swiper
         modules={[EffectCoverflow, Autoplay, Pagination]}
         effect="coverflow"
@@ -43,7 +43,7 @@ export default function ImageCarousel() {
           <SwiperSlide
             key={index}
             className="rounded-lg overflow-hidden shadow-lg"
-            style={{ width: 500, height: 320 }}  // tamaño fijo igual para todas
+            style={{ width: 900, height: 450 }}  // tamaño fijo igual para todas
           >
             <img
               src={src}
