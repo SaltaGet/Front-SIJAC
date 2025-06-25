@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import CarruselNosotros from "@/components/carrusel/CarruselNosotros";
+import portada from "@/assets/fotos/portada.png";
 
 const Home: React.FC = () => {
   const { usersData } = useUser();
@@ -20,12 +21,10 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (isInView && usersData) {
-      // Flip automático
       const reset: Record<string, boolean> = {};
       usersData.forEach(u => reset[u.id] = true);
       setFlippedCards(reset);
 
-      // Después de 2s, vuelven a normal
       const timeout = setTimeout(() => setFlippedCards({}), 2000);
       return () => clearTimeout(timeout);
     }
@@ -39,7 +38,10 @@ const Home: React.FC = () => {
       transition={{ duration: 1 }}
     >
       {/* Hero */}
-      <section className="bg-[url('/hero-bg.jpg')] bg-cover bg-center text-white py-24 px-6 text-center bg-black/60 bg-blend-multiply">
+      <section
+        className="bg-cover bg-center text-white py-24 px-6 text-center bg-black/60 bg-blend-multiply"
+        style={{ backgroundImage: `url(${portada})` }}
+      >
         <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
           className="text-4xl md:text-6xl font-bold mb-2">SIJAC</motion.h1>
         <motion.p initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}

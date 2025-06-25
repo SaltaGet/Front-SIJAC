@@ -43,12 +43,12 @@ export default function ImageCarousel() {
           <SwiperSlide
             key={index}
             className="rounded-lg overflow-hidden shadow-lg"
-            style={{ width: 300, height: 180 }}  // tamaño fijo igual para todas
+            style={{ width: 500, height: 320 }}  // tamaño fijo igual para todas
           >
             <img
               src={src}
               alt={`Slide ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover border-5 border-emerald-900 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
             />
           </SwiperSlide>
         ))}
