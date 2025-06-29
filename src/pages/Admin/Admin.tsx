@@ -9,15 +9,17 @@ import AdimEditPost from "./AdminEditBlog";
 import AdminClients from "./AdminClients";
 import AdminCases from "./AdminCases";
 import AdminAssigTurn from "./AdminAssigTurn";
+import AdminCoworking from "./coworking/AdminCoworking"; // Asegúrate de crear este componente
 
 const SECTIONS = [
-  { id: "selector", label: "Crear Turnos" },
-  { id: "appointment", label: "Turnos" },
-  { id: "createPost", label: "Crear Post" },
-  { id: "editPost", label: "Tus Posteos" },
+  { id: "selector", label: "Turnos" },
+  { id: "appointment", label: "Calendario" },
+  { id: "coworking", label: "Coworking" }, // Nueva sección
+  { id: "createPost", label: "Posts" },
+  { id: "editPost", label: "Editar Posts" },
   { id: "clients", label: "Clientes" },
   { id: "cases", label: "Casos" },
-  { id: "assig-turn", label: "Asignar Turno" },
+  { id: "assig-turn", label: "Asignaciones" },
 ] as const;
 
 type Section = typeof SECTIONS[number]['id'];
@@ -46,24 +48,30 @@ const Admin = () => {
     <div className="min-h-screen flex flex-col md:flex-row bg-prim-50">
       {/* Mobile Header */}
       <header className="md:hidden flex justify-between items-center p-4 bg-prim-100 border-b border-prim-200">
-        <h2 className="text-lg font-semibold text-prim-700">Admin Panel</h2>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-prim-700">
+        <h2 className="text-lg font-semibold text-prim-700">Panel Admin</h2>
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          className="text-prim-700 focus:outline-none"
+          aria-label="Toggle menu"
+        >
           <Menu className="w-6 h-6" />
         </button>
       </header>
 
-      {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-64 bg-prim-100 border-r border-prim-200 p-4`}>
-        <h2 className="text-lg font-semibold text-prim-700 mb-4 hidden md:block">Admin Panel</h2>
+      {/* Sidebar - Compacto y profesional */}
+      <aside className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-56 bg-prim-100 border-r border-prim-200`}>
+        <div className="p-4 border-b border-prim-200">
+          <h2 className="text-lg font-semibold text-prim-700 hidden md:block">Administración</h2>
+        </div>
         
-        <nav className="flex flex-col space-y-2">
+        <nav className="p-2 space-y-1">
           {SECTIONS.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => handleSectionChange(id)}
-              className={`p-3 rounded-md text-left transition-colors ${
+              className={`w-full p-2 rounded text-sm transition-colors flex items-center ${
                 activeSection === id 
-                  ? 'bg-prim-500 text-white' 
+                  ? 'bg-prim-600 text-white' 
                   : 'text-prim-800 hover:bg-prim-200'
               }`}
             >
@@ -73,7 +81,7 @@ const Admin = () => {
           
           <button
             onClick={handleLogout}
-            className="mt-6 p-3 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+            className="w-full mt-4 p-2 rounded text-sm bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
           >
             Cerrar Sesión
           </button>
@@ -81,7 +89,7 @@ const Admin = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-6 overflow-auto">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-white rounded-lg shadow-sm">
         {activeSection === "selector" && <CalendarSelector />}
         {activeSection === "appointment" && <CalendarApointment />}
         {activeSection === "createPost" && <FormCreatePost />}
@@ -89,6 +97,7 @@ const Admin = () => {
         {activeSection === "clients" && <AdminClients />}
         {activeSection === "cases" && <AdminCases />}
         {activeSection === "assig-turn" && <AdminAssigTurn />}
+        {activeSection === "coworking" && <AdminCoworking />} {/* Nueva sección */}
       </main>
     </div>
   );

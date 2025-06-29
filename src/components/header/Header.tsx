@@ -61,6 +61,13 @@ const Header: React.FC = () => {
           <Link to="/blogs" className="hover:text-prim-500 transition">
             Noticias
           </Link>
+          {/* Nueva opción */}
+          <Link 
+            to="/coworking" 
+            className="hover:text-prim-500 transition"
+          >
+            Oficinas Compartidas
+          </Link>
         </nav>
 
         {/* Turno button (desktop) */}
@@ -104,6 +111,14 @@ const Header: React.FC = () => {
             onClick={() => setIsOpen(false)}
           >
             Noticias
+          </Link>
+          {/* Nueva opción (mobile) */}
+          <Link
+            to="/coworking"
+            className="block hover:text-prim-500 transition"
+            onClick={() => setIsOpen(false)}
+          >
+            Oficinas Compartidas
           </Link>
           <Link
             to={"turnos"}

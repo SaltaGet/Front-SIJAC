@@ -4,6 +4,7 @@ import Admin from "@/pages/Admin/Admin";
 import BlogDetails from "@/pages/BlogDetails";
 import Blogs from "@/pages/Blogs";
 import CallbackTurno from "@/pages/CallbackTurno";
+import Coworking from "@/pages/Coworking/Coworking";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Turnos from "@/pages/Turnos/Turnos";
@@ -56,6 +57,12 @@ const routers = createBrowserRouter([
       ,{
         path: "/blog/:id",
         element: <BlogDetails />,
+        errorElement: <h1>FAIL TURNOS</h1>,
+
+      }
+      ,{
+        path: "/coworking",
+        element: <Coworking />,
         errorElement: <h1>FAIL TURNOS</h1>,
 
       }
