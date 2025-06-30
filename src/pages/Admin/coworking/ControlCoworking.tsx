@@ -11,12 +11,15 @@ import {
   startOfMonth,
   endOfMonth,
   isAfter,
+  getDay,
+  subDays,
 } from "date-fns";
 import { es } from "date-fns/locale";
 import CardControlAppointment from "./CardControlAppointment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiSijac from "@/api/sijac";
 import useAuthStore from "@/store/useAuthStore";
+import { FormEditAvailibilty } from "../forms/edit/FormEditAvailibilty";
 
 type Room = {
   id: string;
@@ -38,6 +41,14 @@ type RoomAppointment = {
   last_name?: string;
 };
 
+type Availability = {
+  id: string;
+  date_all: string;
+  start_time: string;
+  end_time: string;
+  disponibility: boolean;
+};
+
 interface UpdateData {
   ids: string[];
   newState: 'nulo' | 'cancelado' | 'reservado' | 'pendiente' | 'aceptado';
@@ -57,6 +68,16 @@ const updateState = async (dataUpdate: UpdateData) => {
   return data;
 };
 
+const deleteAvailability = async (id: string) => {
+  const token = useAuthStore.getState().token;
+  const { data } = await apiSijac.delete(`/room_availability/delete/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+};
+
 const ControlCoworking = () => {
   const { rooms, isLoading } = useGetAllRooms();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -71,6 +92,9 @@ const ControlCoworking = () => {
   const { data: appointments, isLoading: isLoadingAppointments } =
     useRoomAppointmentGetAllByAvailibityId(selectedAvailabilityId || "");
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [availabilityToEdit, setAvailabilityToEdit] = useState<Availability | null>(null);
+
   const mutation = useMutation({
     mutationFn: updateState,
     onSuccess: () => {
@@ -78,11 +102,41 @@ const ControlCoworking = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteAvailability,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['availabilityRooms', selectedRoomId] });
+      queryClient.invalidateQueries({ queryKey: ['roomAppoinment'] });
+      alert('Disponibilidad eliminada con éxito');
+      setSelectedDate(null);
+      setSelectedAvailabilityId(null);
+    },
+    onError: () => {
+      alert('Ocurrió un error al eliminar la disponibilidad. Por favor, contacte al administrador.');
+    },
+  });
+
   const handleUpdateState = (ids: string[], newState: UpdateData['newState']) => {
     mutation.mutate({ ids, newState });
   };
 
-  // Función para agrupar citas por group_id
+  const handleDeleteAvailability = (id: string) => {
+    const confirmDelete = window.confirm('¿Está seguro que desea eliminar esta disponibilidad?');
+    if (confirmDelete) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const openEditModal = (availability: Availability) => {
+    setAvailabilityToEdit(availability);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setAvailabilityToEdit(null);
+  };
+
   const groupAppointments = (apps: RoomAppointment[]) => {
     return apps.reduce((acc, app) => {
       const groupKey = app.group_id || 'individual';
@@ -93,39 +147,27 @@ const ControlCoworking = () => {
     }, {} as Record<string, RoomAppointment[]>);
   };
 
-  // Obtener días con disponibilidad para el mes actual (solo futuros)
-  const getAvailableDays = () => {
-    if (!availabilityData) return [];
+  // Función para obtener los días del mes con alineación correcta
+  const getCalendarDays = () => {
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    const daysInMonth = eachDayOfInterval({ start, end });
 
-    const daysInMonth = eachDayOfInterval({
-      start: startOfMonth(currentMonth),
-      end: endOfMonth(currentMonth),
-    });
+    // Obtener el día de la semana del primer día del mes (0 = Domingo, 1 = Lunes...)
+    const startWeekday = getDay(start);
+    
+    // Ajustar para que la semana empiece en Lunes (1)
+    const offset = startWeekday === 0 ? 6 : startWeekday - 1;
+    
+    // Agregar días del mes anterior para completar la primera semana
+    const previousMonthDays = offset > 0 
+      ? eachDayOfInterval({
+          start: subDays(start, offset),
+          end: subDays(start, 1)
+        })
+      : [];
 
-    const today = new Date();
-
-    return daysInMonth.filter(
-      (day) =>
-        isAfter(day, today) && // Solo días futuros
-        availabilityData.some((avail) =>
-          isSameDay(parseISO(avail.date_all), day)
-        )
-    );
-  };
-
-  // Navegación entre meses limitada a +3 meses
-  const prevMonth = () => {
-    const prev = addMonths(currentMonth, -1);
-    if (prev >= startOfMonth(new Date())) {
-      setCurrentMonth(prev);
-    }
-  };
-
-  const nextMonth = () => {
-    const next = addMonths(currentMonth, 1);
-    if (next <= addMonths(new Date(), 3)) {
-      setCurrentMonth(next);
-    }
+    return [...previousMonthDays, ...daysInMonth];
   };
 
   // Obtener disponibilidad para un día específico
@@ -136,12 +178,18 @@ const ControlCoworking = () => {
     );
   };
 
+  // Navegación entre meses
+  const prevMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, -1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
+
   if (isLoading) return <div>Cargando salas...</div>;
 
-  // Agrupar citas cuando appointments cambia
   const groupedAppointments = appointments ? groupAppointments(appointments) : {};
-
-  // Opciones de estado disponibles
   const stateOptions: UpdateData['newState'][] = ['pendiente', 'aceptado', 'cancelado', 'reservado', 'nulo'];
 
   return (
@@ -181,14 +229,13 @@ const ControlCoworking = () => {
       {selectedRoomId && isLoadingAvailability && <p>Cargando disponibilidad...</p>}
 
       {/* Calendario de disponibilidad */}
-      {selectedRoomId && availabilityData && (
+      {selectedRoomId && (
         <div className="mt-4">
           {/* Controles de navegación */}
           <div className="flex justify-between items-center mb-3">
             <button
               onClick={prevMonth}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
-              disabled={addMonths(startOfMonth(new Date()), -1) >= currentMonth}
             >
               &larr;
             </button>
@@ -198,42 +245,51 @@ const ControlCoworking = () => {
             <button
               onClick={nextMonth}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
-              disabled={addMonths(new Date(), 3) <= currentMonth}
             >
               &rarr;
             </button>
           </div>
 
-          {/* Vista de calendario compacto */}
-          <div className="grid grid-cols-7 gap-1">
-            {["L", "M", "M", "J", "V", "S", "D"].map((day, i) => (
+          {/* Vista de calendario completo y correctamente alineado */}
+          <div className="grid grid-cols-7 gap-1 mb-4">
+            {/* Encabezados de días de la semana */}
+            {["L", "M", "X", "J", "V", "S", "D"].map((day, i) => (
               <div key={i} className="text-center text-xs font-medium py-1">
                 {day}
               </div>
             ))}
 
-            {getAvailableDays().map((day, i) => {
-              const dayAvailabilities = getDayAvailability(day);
+            {/* Días del calendario */}
+            {getCalendarDays().map((day, i) => {
+              const isCurrentMonth = day >= startOfMonth(currentMonth) && day <= endOfMonth(currentMonth);
+              const dayAvailabilities = isCurrentMonth ? getDayAvailability(day) : [];
+              const isAvailable = dayAvailabilities.length > 0;
               const isSelected = selectedDate && isSameDay(day, selectedDate);
-              const hasReservations = dayAvailabilities.some(
-                (avail) => avail.disponibility === false
-              );
+              const hasReservations = dayAvailabilities.some(avail => !avail.disponibility);
+              const isPast = !isAfter(day, new Date());
 
               return (
                 <button
                   key={i}
                   onClick={() => {
-                    setSelectedDate(day);
-                    if (dayAvailabilities[0]?.id) {
-                      setSelectedAvailabilityId(dayAvailabilities[0].id);
+                    if (isAvailable && isCurrentMonth) {
+                      setSelectedDate(day);
+                      setSelectedAvailabilityId(dayAvailabilities[0]?.id || null);
                     }
                   }}
+                  disabled={!isAvailable || !isCurrentMonth}
                   className={`h-8 rounded-full text-sm flex items-center justify-center ${
-                    isSelected
-                      ? "bg-blue-500 text-white"
-                      : hasReservations
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800 hover:bg-green-200"
+                    !isCurrentMonth 
+                      ? "text-gray-300 bg-white" 
+                      : isSelected
+                        ? "bg-blue-500 text-white"
+                        : isAvailable
+                          ? hasReservations
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800 hover:bg-green-200"
+                          : isPast
+                            ? "bg-gray-100 text-gray-400"
+                            : "bg-white text-gray-800 border border-gray-200"
                   }`}
                 >
                   {format(day, "d")}
@@ -245,9 +301,43 @@ const ControlCoworking = () => {
           {/* Detalle de reservas para el día seleccionado */}
           {selectedDate && (
             <div className="mt-4 p-3 border rounded-lg">
-              <h4 className="font-medium mb-2">
-                {format(selectedDate, "EEEE d MMMM", { locale: es })}
-              </h4>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-medium">
+                  {format(selectedDate, "EEEE d MMMM", { locale: es })}
+                </h4>
+                
+                {availabilityData && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const availability = availabilityData.find(avail => 
+                          isSameDay(parseISO(avail.date_all), selectedDate)
+                        );
+                        if (availability) {
+                          openEditModal(availability);
+                        }
+                      }}
+                      className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+                    >
+                      Editar horario
+                    </button>
+                    <button
+                      onClick={() => {
+                        const availability = availabilityData.find(avail => 
+                          isSameDay(parseISO(avail.date_all), selectedDate)
+                        );
+                        if (availability) {
+                          handleDeleteAvailability(availability.id);
+                        }
+                      }}
+                      className="px-3 py-1 bg-red-200 rounded hover:bg-red-300 text-sm text-red-800"
+                      disabled={deleteMutation.isPending}
+                    >
+                      {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {isLoadingAppointments ? (
                 <p>Cargando reservas...</p>
@@ -255,7 +345,6 @@ const ControlCoworking = () => {
                 <div className="space-y-4">
                   {appointments && appointments.length > 0 ? (
                     <>
-                      {/* Mostrar primero las citas individuales */}
                       {groupedAppointments['individual'] && (
                         <div className="space-y-2">
                           {groupedAppointments['individual'].map((app) => (
@@ -267,7 +356,6 @@ const ControlCoworking = () => {
                         </div>
                       )}
 
-                      {/* Mostrar grupos */}
                       {Object.entries(groupedAppointments)
                         .filter(([groupKey]) => groupKey !== 'individual')
                         .map(([groupKey, groupApps]) => (
@@ -279,7 +367,6 @@ const ControlCoworking = () => {
                               </span>
                               <div className="flex-1 border-t border-gray-300"></div>
                               
-                              {/* Botones de acción para el grupo */}
                               <div className="flex gap-1">
                                 {stateOptions.map((option) => (
                                   <button
@@ -319,6 +406,20 @@ const ControlCoworking = () => {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal de edición de disponibilidad */}
+      {isEditModalOpen && availabilityToEdit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <FormEditAvailibilty
+              id={availabilityToEdit.id}
+              start_time={availabilityToEdit.start_time}
+              end_time={availabilityToEdit.end_time}
+              onClose={closeEditModal}
+            />
+          </div>
         </div>
       )}
     </div>

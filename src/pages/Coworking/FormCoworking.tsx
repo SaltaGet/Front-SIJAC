@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import useAuthStore from "@/store/useAuthStore";
+import { RoomPlan, useGetAllRoomPlans } from "@/hooks/roomPlan/useGetAllRoomPlans";
 
 interface FormData {
   firstName: string;
@@ -10,6 +11,8 @@ interface FormData {
   email: string;
   phone: string;
   tuition: string;
+  useRoomPlan: boolean;
+  roomPlanId: string;
 }
 
 interface FormCoworkingProps {
@@ -28,10 +31,23 @@ interface RoomAppointmentPayload {
   room_availability_id: string;
 }
 
+const assignRoomPlan = async ({ room_plan_id, appointment_ids }: { room_plan_id: string, appointment_ids: string[] }) => {
+  const token = useAuthStore.getState().token;
+  const { data } = await apiSijac.put(
+    `/room_plan/assign_appointments/${room_plan_id}`, 
+    { appointment_ids },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return data;
+}
+
 const postCreateRoomAppointment = async (payload: RoomAppointmentPayload) => {
   const token = useAuthStore.getState().token;
   
-  // Si hay token, es la secretaría
   if (token) {
     const { data } = await apiSijac.put(
       "/room_appointment/create_by_secretary", 
@@ -45,7 +61,6 @@ const postCreateRoomAppointment = async (payload: RoomAppointmentPayload) => {
     return data;
   }
   
-  // Si no hay token, es el flujo normal
   const { data } = await apiSijac.put("/room_appointment/create", payload);
   return data;
 }
@@ -54,20 +69,41 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCow
   const { 
     register, 
     handleSubmit, 
+    watch,
     formState: { errors } 
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      useRoomPlan: false
+    }
+  });
 
+  const {roomPlans } = useGetAllRoomPlans();
   const [showSuccess, setShowSuccess] = useState(false);
   const token = useAuthStore.getState().token;
-
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: postCreateRoomAppointment,
+  const useRoomPlan = watch("useRoomPlan");
+
+  const { mutate: assignRoomPlanMutation, isPending: isAssigningPlan } = useMutation({
+    mutationFn: assignRoomPlan,
     onSuccess: () => {
       setShowSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["roomAppoinment"] });
-      // Para la secretaría cerramos más rápido (2 segundos) y no recargamos
+      const timer = setTimeout(() => {
+        onClose();
+      }, 2000);
+      return () => clearTimeout(timer);
+    },
+    onError: () => {
+      alert("Solo se puede crear con 3 días de anticipación o el cliente no tiene suficientes horas.");
+    },
+  });
+
+  const { mutate: createAppointment, isPending: isCreatingAppointment } = useMutation({
+    mutationFn: postCreateRoomAppointment,
+    onSuccess: () => {
+      setShowSuccess(true);
+      queryClient.invalidateQueries({ queryKey: ["roomAppointment"] });
       const timer = setTimeout(() => {
         onClose();
         if (!token) {
@@ -82,17 +118,28 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCow
   });
 
   const onSubmit = (data: FormData) => {
-    const reservationData: RoomAppointmentPayload = {
-      appointment_ids: selectedAppointments,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      cellphone: data.phone,
-      tuition: data.tuition,
-      room_availability_id: roomId
-    };
-    mutate(reservationData);
+    if (token && data.useRoomPlan) {
+      // Flujo con room plan (solo para secretaría)
+      assignRoomPlanMutation({
+        room_plan_id: data.roomPlanId,
+        appointment_ids: selectedAppointments
+      });
+    } else {
+      // Flujo normal o de secretaría sin room plan
+      const reservationData: RoomAppointmentPayload = {
+        appointment_ids: selectedAppointments,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        cellphone: data.phone,
+        tuition: data.tuition,
+        room_availability_id: roomId
+      };
+      createAppointment(reservationData);
+    }
   };
+
+  const isPending = isCreatingAppointment || isAssigningPlan;
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -131,137 +178,179 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCow
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* ... (resto del formulario permanece igual) ... */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre *</label>
-                  <div className="relative">
+              {token && (
+                <div className="space-y-3">
+                  <div className="flex items-center">
                     <input
-                      {...register("firstName", { required: "Requerido" })}
-                      className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
-                        errors.firstName ? "border-red-400" : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      placeholder="Juan"
-                      disabled={isPending}
+                      id="useRoomPlan"
+                      type="checkbox"
+                      {...register("useRoomPlan")}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    {errors.firstName && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
+                    <label htmlFor="useRoomPlan" className="ml-2 block text-sm text-gray-700">
+                      Usar Plan de Sala
+                    </label>
                   </div>
-                  {errors.firstName && (
-                    <p className="mt-1 text-xs text-red-600">{errors.firstName.message}</p>
-                  )}
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Apellido *</label>
-                  <div className="relative">
-                    <input
-                      {...register("lastName", { required: "Requerido" })}
-                      className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
-                        errors.lastName ? "border-red-400" : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      placeholder="Pérez"
-                      disabled={isPending}
-                    />
-                    {errors.lastName && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  {errors.lastName && (
-                    <p className="mt-1 text-xs text-red-600">{errors.lastName.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    {...register("email", { 
-                      required: "Requerido",
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: "Email inválido"
-                      }
-                    })}
-                    className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
-                      errors.email ? "border-red-400" : "border-gray-300 hover:border-gray-400"
-                    }`}
-                    placeholder="juan.perez@ejemplo.com"
-                    disabled={isPending}
-                  />
-                  {errors.email && (
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
+                  {useRoomPlan && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Plan de Sala *</label>
+                      <select
+                        {...register("roomPlanId", { required: useRoomPlan ? "Seleccione un plan" : false })}
+                        className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                          errors.roomPlanId ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        disabled={isPending}
+                      >
+                        <option value="">Seleccione un plan</option>
+                        {roomPlans?.map((plan: RoomPlan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.first_name} {plan.last_name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.roomPlanId && (
+                        <p className="mt-1 text-xs text-red-600">{errors.roomPlanId.message}</p>
+                      )}
                     </div>
                   )}
                 </div>
-                {errors.email && (
-                  <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
-                )}
-              </div>
+              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono *</label>
-                  <div className="relative">
-                    <input
-                      {...register("phone", { required: "Requerido" })}
-                      className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
-                        errors.phone ? "border-red-400" : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      placeholder="+54 11 2345-6789"
-                      disabled={isPending}
-                    />
-                    {errors.phone && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
+              {!useRoomPlan && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre *</label>
+                      <div className="relative">
+                        <input
+                          {...register("firstName", { required: "Requerido" })}
+                          className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                            errors.firstName ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                          }`}
+                          placeholder="Juan"
+                          disabled={isPending}
+                        />
+                        {errors.firstName && (
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
+                      {errors.firstName && (
+                        <p className="mt-1 text-xs text-red-600">{errors.firstName.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Apellido *</label>
+                      <div className="relative">
+                        <input
+                          {...register("lastName", { required: "Requerido" })}
+                          className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                            errors.lastName ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                          }`}
+                          placeholder="Pérez"
+                          disabled={isPending}
+                        />
+                        {errors.lastName && (
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      {errors.lastName && (
+                        <p className="mt-1 text-xs text-red-600">{errors.lastName.message}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        {...register("email", { 
+                          required: "Requerido",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: "Email inválido"
+                          }
+                        })}
+                        className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                          errors.email ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        placeholder="juan.perez@ejemplo.com"
+                        disabled={isPending}
+                      />
+                      {errors.email && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    {errors.email && (
+                      <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
                     )}
                   </div>
-                  {errors.phone && (
-                    <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
-                  )}
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Matrícula *</label>
-                  <div className="relative">
-                    <input
-                      {...register("tuition", { required: "Requerido" })}
-                      className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
-                        errors.tuition ? "border-red-400" : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      placeholder="AB123456"
-                      disabled={isPending}
-                    />
-                    {errors.tuition && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono *</label>
+                      <div className="relative">
+                        <input
+                          {...register("phone", { required: "Requerido" })}
+                          className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                            errors.phone ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                          }`}
+                          placeholder="+54 11 2345-6789"
+                          disabled={isPending}
+                        />
+                        {errors.phone && (
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      {errors.phone && (
+                        <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Matrícula *</label>
+                      <div className="relative">
+                        <input
+                          {...register("tuition", { required: "Requerido" })}
+                          className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:ring-1 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all ${
+                            errors.tuition ? "border-red-400" : "border-gray-300 hover:border-gray-400"
+                          }`}
+                          placeholder="AB123456"
+                          disabled={isPending}
+                        />
+                        {errors.tuition && (
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      {errors.tuition && (
+                        <p className="mt-1 text-xs text-red-600">{errors.tuition.message}</p>
+                      )}
+                    </div>
                   </div>
-                  {errors.tuition && (
-                    <p className="mt-1 text-xs text-red-600">{errors.tuition.message}</p>
-                  )}
-                </div>
-              </div>
+                </>
+              )}
 
               <div className="flex justify-end space-x-3 pt-2">
                 <button

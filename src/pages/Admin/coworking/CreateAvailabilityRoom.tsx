@@ -1,7 +1,7 @@
 import apiSijac from "@/api/sijac";
 import { useAvaliabilityRoomsByRoomId } from "@/hooks/availabilityRoom/useAvaliabilityRoomsByRoomId";
 import useAuthStore from "@/store/useAuthStore";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -23,17 +23,14 @@ interface CreateAvailabilityRoomProps {
 const postAllRoomAvailabilities = async (dates: AvailabilityDate[]) => {
   const token = useAuthStore.getState().token;
   
-  const requests = dates.map(date => 
-    apiSijac.post('/room_availability/create', date, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-  );
+  const response = await apiSijac.post('/room_availability/create', dates, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 
-  const responses = await Promise.all(requests);
-  return responses.map(res => res.data);
+  return response.data;
 };
 
 const CreateAvailabilityRoom: React.FC<CreateAvailabilityRoomProps> = ({
@@ -51,10 +48,13 @@ const CreateAvailabilityRoom: React.FC<CreateAvailabilityRoomProps> = ({
   const { data: existingAvailabilities, isLoading: isLoadingAvailabilities } = 
     useAvaliabilityRoomsByRoomId(roomId);
 
+  const queryClient = useQueryClient();
+
   const { mutateAsync } = useMutation({
     mutationFn: postAllRoomAvailabilities,
     onSuccess: () => {
       alert("Todas las fechas se guardaron correctamente");
+      queryClient.invalidateQueries({ queryKey: ['availabilityRooms'] });
       onCloseModal?.();
     },
     onError: () => {

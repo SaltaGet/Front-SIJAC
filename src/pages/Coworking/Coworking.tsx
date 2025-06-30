@@ -1,6 +1,92 @@
 import SelectRoom from "./SelectRoom";
+import PlanCard from "./PlanCard";
+import BenefitCard from "./BenefitCard";
 
 const Coworking = () => {
+  const benefits = [
+    {
+      icon: (
+        <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+      title: "Oficinas Profesionales",
+      description: "Despachos privados o espacios compartidos, totalmente equipados para tu práctica legal."
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+      title: "Flexibilidad",
+      description: "Contratos por horas, días o meses. Sin ataduras ni costos fijos elevados."
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+        </svg>
+      ),
+      title: "Servicios Incluidos",
+      description: "Internet de alta velocidad, salas de reuniones, recepción de clientes y más."
+    }
+  ];
+
+  const plans = [
+  {
+    title: "Plan Básico",
+    subtitle: "Ideal para consultas esporádicas",
+    price: "25.000",
+    period: "10 horas",
+    features: [
+      "1 hora de sala de reuniones",
+      "Acceso a biblioteca jurídica",
+      "Internet de alta velocidad",
+      "Uso de impresora (50 páginas)"
+    ],
+    buttonColor: "prim-500",
+    hoverColor: "prim-600",
+    buttonText: "Consultar",
+    link: "https://google.com" // Agregado
+  },
+  {
+    title: "Plan Profesional",
+    subtitle: "Perfecto para casos mensuales",
+    price: "70.000",
+    period: "30 horas",
+    features: [
+      "3 horas de sala de reuniones",
+      "Acceso prioritario a salas",
+      "Internet dedicado",
+      "Uso de impresora (200 páginas)",
+      "Lockers para documentos"
+    ],
+    buttonColor: "prim-600",
+    hoverColor: "prim-700",
+    buttonText: "Consultar",
+    link: "https://tu-sitio.com/consulta-profesional" // Agregado
+  },
+  {
+    title: "Plan Premium",
+    subtitle: "Para bufetes en crecimiento",
+    price: "120.000",
+    period: "50 horas",
+    features: [
+      "5 horas de sala de reuniones",
+      "Oficina privada 1 día/mes",
+      "Internet dedicado premium",
+      "Uso de impresora (500 páginas)",
+      "Lockers premium con llave",
+      "Asistente recepcionista 2h/semana"
+    ],
+    buttonColor: "prim-700",
+    hoverColor: "prim-800",
+    buttonText: "Consultar",
+    link: "https://tu-sitio.com/consulta-premium" // Agregado
+  }
+];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Minihero */}
@@ -22,48 +108,42 @@ const Coworking = () => {
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Tarjeta 1 */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
-            <div className="w-12 h-12 bg-prim-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Oficinas Profesionales</h3>
-            <p className="text-gray-600">
-              Despachos privados o espacios compartidos, totalmente equipados para tu práctica legal.
-            </p>
-          </div>
-
-          {/* Tarjeta 2 */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
-            <div className="w-12 h-12 bg-prim-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Flexibilidad</h3>
-            <p className="text-gray-600">
-              Contratos por horas, días o meses. Sin ataduras ni costos fijos elevados.
-            </p>
-          </div>
-
-          {/* Tarjeta 3 */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
-            <div className="w-12 h-12 bg-prim-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-prim-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Servicios Incluidos</h3>
-            <p className="text-gray-600">
-              Internet de alta velocidad, salas de reuniones, recepción de clientes y más.
-            </p>
-          </div>
+          {benefits.map((benefit, index) => (
+            <BenefitCard
+              key={index}
+              icon={benefit.icon}
+              title={benefit.title}
+              description={benefit.description}
+            />
+          ))}
         </div>
       </section>
 
-      {/* CTA (opcional, lo puedes reemplazar luego por la sección de turnos) */}
+      {/* Planes para abogados */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">
+          Nuestros Planes Flexibles
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {plans.map((plan, index) => (
+            <PlanCard
+              key={index}
+              title={plan.title}
+              subtitle={plan.subtitle}
+              price={plan.price}
+              period={plan.period}
+              features={plan.features}
+              buttonText={plan.buttonText}
+              buttonColor={plan.buttonColor}
+              hoverColor={plan.hoverColor}
+              link={plan.link}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
       <section className="bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
