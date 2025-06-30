@@ -65,7 +65,7 @@ const Coworking = () => {
     buttonColor: "prim-600",
     hoverColor: "prim-700",
     buttonText: "Consultar",
-    link: "https://tu-sitio.com/consulta-profesional" // Agregado
+    link: "https://google.com" // Agregado
   },
   {
     title: "Plan Premium",
@@ -83,7 +83,7 @@ const Coworking = () => {
     buttonColor: "prim-700",
     hoverColor: "prim-800",
     buttonText: "Consultar",
-    link: "https://tu-sitio.com/consulta-premium" // Agregado
+    link: "https://google.com" // Agregado
   }
 ];
 
