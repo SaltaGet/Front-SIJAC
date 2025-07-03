@@ -1,6 +1,5 @@
-import { useAvaliabilityRoomsByRoomId } from "@/hooks/availabilityRoom/useAvaliabilityRoomsByRoomId";
+import { Availability, useAvaliabilityRoomsByRoomId } from "@/hooks/availabilityRoom/useAvaliabilityRoomsByRoomId";
 import { useGetAllRooms } from "@/hooks/room/useGetAllRooms";
-import { useRoomAppointmentGetAllByAvailibityId } from "@/hooks/roomAppoinment/useRoomAppointmentGetAllByAvailibityId";
 import { useState } from "react";
 import {
   format,
@@ -20,6 +19,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiSijac from "@/api/sijac";
 import useAuthStore from "@/store/useAuthStore";
 import { FormEditAvailibilty } from "../forms/edit/FormEditAvailibilty";
+import { useRoomAppointmentGetAllByAvailibityId } from "@/hooks/roomAppoinment/useRoomAppointmentGetAllByAvailibityId";
 
 type Room = {
   id: string;
@@ -41,18 +41,6 @@ type RoomAppointment = {
   last_name?: string;
 };
 
-type Availability = {
-  id: string;
-  date_all: string; // This is in YYYY-MM-DD format
-  start_time: string; // This is in ISO format with timezone
-  end_time: string; // This is in ISO format with timezone
-  is_null: boolean;
-  is_pending: boolean;
-  is_reserved: boolean;
-  is_accepted: boolean;
-  is_rejected: boolean;
-  is_cancelled: boolean;
-};
 
 interface UpdateData {
   ids: string[];
@@ -106,6 +94,7 @@ const ControlCoworking = () => {
       queryClient.invalidateQueries({ queryKey: ['roomAppoinment', selectedAvailabilityId] });
     },
   });
+  
 
   const deleteMutation = useMutation({
     mutationFn: deleteAvailability,
@@ -183,6 +172,57 @@ const ControlCoworking = () => {
     );
   };
 
+  // Determinar el estado predominante de un día
+  const getDayState = (availabilities: Availability[]) => {
+    if (availabilities.length === 0) return 'none';
+    
+    // Contar los estados de todas las disponibilidades del día
+    const stateCounts = availabilities.reduce((acc, avail) => {
+      if (avail.is_acepted) acc.aceptado = (acc.aceptado || 0) + 1;
+      if (avail.is_pending) acc.pendiente = (acc.pendiente || 0) + 1;
+      if (avail.is_reserved) acc.reservado = (acc.reservado || 0) + 1;
+      if (avail.is_cancelled) acc.cancelado = (acc.cancelado || 0) + 1;
+      if (avail.is_null) acc.nulo = (acc.nulo || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Determinar el estado predominante
+    const maxState = Object.entries(stateCounts).reduce(
+      (max, [state, count]) => count > (max.count || 0) ? { state, count } : max,
+      { state: 'none', count: 0 }
+    );
+
+    return maxState.state;
+  };
+
+  // Obtener clase CSS basada en el estado
+  const getDayClass = (day: Date, isCurrentMonth: boolean, isSelected: boolean | null) => {
+  if (!isCurrentMonth) return "text-gray-300 bg-white";
+  if (isSelected) return "bg-blue-500 text-white";
+
+  const dayAvailabilities = getDayAvailability(day);
+  const dayState = getDayState(dayAvailabilities);
+  const isPast = !isAfter(day, new Date());
+
+  if (dayAvailabilities.length === 0) {
+    return isPast ? "bg-gray-100 text-gray-400" : "bg-white text-gray-800 border border-gray-200";
+  }
+
+  switch (dayState) {
+    case 'aceptado':
+      return "bg-green-100 text-green-800 hover:bg-green-200";
+    case 'pendiente':
+      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+    case 'reservado':
+      return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+    case 'cancelado':
+      return "bg-red-100 text-red-800 hover:bg-red-200";
+    case 'nulo':
+      return "bg-gray-200 text-gray-800 hover:bg-gray-300";
+    default:
+      return "bg-white text-gray-800 border border-gray-200";
+  }
+};
   // Navegación entre meses
   const prevMonth = () => {
     setCurrentMonth(addMonths(currentMonth, -1));
@@ -195,7 +235,7 @@ const ControlCoworking = () => {
   if (isLoading) return <div>Cargando salas...</div>;
 
   const groupedAppointments = appointments ? groupAppointments(appointments) : {};
-  const stateOptions: UpdateData['newState'][] = ['pendiente', 'aceptado', 'cancelado', 'reservado', 'nulo'];
+  const stateOptions: UpdateData['newState'][] = ['pendiente', 'aceptado', 'cancelado', 'reservado'];
 
   return (
     <div className="p-4">
@@ -270,8 +310,6 @@ const ControlCoworking = () => {
               const dayAvailabilities = isCurrentMonth ? getDayAvailability(day) : [];
               const isAvailable = dayAvailabilities.length > 0;
               const isSelected = selectedDate && isSameDay(day, selectedDate);
-              const hasReservations = dayAvailabilities.some(avail => !avail);
-              const isPast = !isAfter(day, new Date());
 
               return (
                 <button
@@ -284,17 +322,7 @@ const ControlCoworking = () => {
                   }}
                   disabled={!isAvailable || !isCurrentMonth}
                   className={`h-8 rounded-full text-sm flex items-center justify-center ${
-                    !isCurrentMonth 
-                      ? "text-gray-300 bg-white" 
-                      : isSelected
-                        ? "bg-blue-500 text-white"
-                        : isAvailable
-                          ? hasReservations
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800 hover:bg-green-200"
-                          : isPast
-                            ? "bg-gray-100 text-gray-400"
-                            : "bg-white text-gray-800 border border-gray-200"
+                    getDayClass(day, isCurrentMonth, isSelected)
                   }`}
                 >
                   {format(day, "d")}

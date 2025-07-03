@@ -9,7 +9,7 @@ export interface Availability {
   is_null: boolean;
   is_pending: boolean;
   is_reserved: boolean;
-  is_accepted: boolean;
+  is_acepted: boolean;
   is_rejected: boolean;
   is_cancelled: boolean;
 }
@@ -33,14 +33,3 @@ export function useAvaliabilityRoomsByRoomId(id:string) {
 
 }
 
-/*EXAMPLE
-[
-  {
-    "id": "string",
-    "date_all": "2025-06-27",
-    "start_time": "07:49:55.168Z",
-    "end_time": "07:49:55.168Z",
-    "disponibility": true
-  }
-]
- */

@@ -100,7 +100,7 @@ const CardControlAppointment: React.FC<CardControlAppointmentProps> = ({ appoint
   const stateOptions: UpdateData['newState'][] = 
     state === 'nulo' 
       ? ['cancelado'] // Solo cancelar disponible para estado nulo
-      : ['pendiente', 'aceptado', 'cancelado', 'reservado', 'nulo']; // Todas las opciones para otros estados
+      : ['pendiente', 'aceptado', 'cancelado', 'reservado']; // Todas las opciones para otros estados
 
   return (
     <div 
