@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
   email: string;
   cellphone: string;
   tuition: string;
+  available_hours: number;
 }
 
 const fetchAllRoomPlans = async (): Promise<RoomPlan[]> => {

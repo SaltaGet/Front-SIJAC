@@ -70,6 +70,7 @@ export const AddHoursModal = ({ roomPlanId, onClose, onSuccess }: AddHoursModalP
     onSuccess: () => {
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ['roomPlanDetails', roomPlanId] });
+      queryClient.invalidateQueries({ queryKey: ['roomPlans'] });
       onClose();
     },
   });
