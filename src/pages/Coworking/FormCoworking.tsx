@@ -19,6 +19,7 @@ interface FormCoworkingProps {
   onClose: () => void;
   selectedAppointments: string[];
   roomId: string;
+  resetAppointments: () => void
 }
 
 interface RoomAppointmentPayload {
@@ -65,7 +66,7 @@ const postCreateRoomAppointment = async (payload: RoomAppointmentPayload) => {
   return data;
 }
 
-export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCoworkingProps) => {
+export const FormCoworking = ({ onClose, selectedAppointments, roomId, resetAppointments }: FormCoworkingProps) => {
   const { 
     register, 
     handleSubmit, 
@@ -88,7 +89,9 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCow
     mutationFn: assignRoomPlan,
     onSuccess: () => {
       setShowSuccess(true);
-      queryClient.invalidateQueries({ queryKey: ["roomAppoinment"] });
+      queryClient.invalidateQueries({ queryKey: ["roomAppointment"] });
+      queryClient.invalidateQueries({ queryKey: ["availabilityRooms"] });
+      resetAppointments();
       const timer = setTimeout(() => {
         onClose();
       }, 2000);
@@ -104,6 +107,8 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId }: FormCow
     onSuccess: () => {
       setShowSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["roomAppointment"] });
+      queryClient.invalidateQueries({ queryKey: ["availabilityRooms"] });
+      resetAppointments();
       const timer = setTimeout(() => {
         onClose();
         if (!token) {

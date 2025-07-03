@@ -19,6 +19,10 @@ const SelectAppointment = ({ roomId }: SelectAppointmentProps) => {
     );
   };
 
+  const resetAppointments = () => {
+    setSelectedAppointments([]);
+  }
+
   const handleSubmit = () => {
     setShowModal(true);
   };
@@ -93,6 +97,7 @@ const SelectAppointment = ({ roomId }: SelectAppointmentProps) => {
           onClose={() => setShowModal(false)}
           selectedAppointments={selectedAppointments}
           roomId={roomId}
+          resetAppointments={resetAppointments}
         />
       )}
     </div>

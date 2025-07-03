@@ -18,7 +18,7 @@ const fetchRoomAppointment = async (ctx: QueryFunctionContext): Promise<RoomAppo
 
 export function useRoomAppointmentGetAllByAvailibityId(id: string) {
   const { data, isLoading } = useQuery<RoomAppointment[]>({
-    queryKey: ['roomAppoinment', id],
+    queryKey: ['roomAppointment', id],
     queryFn: fetchRoomAppointment,
     staleTime: Infinity,
   });
