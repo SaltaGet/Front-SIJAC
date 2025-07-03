@@ -6,7 +6,12 @@ export interface Availability {
   date_all: string; // This is in YYYY-MM-DD format
   start_time: string; // This is in ISO format with timezone
   end_time: string; // This is in ISO format with timezone
-  disponibility: boolean; // Note: "disponibility" seems to be Spanish for "availability"
+  is_null: boolean;
+  is_pending: boolean;
+  is_reserved: boolean;
+  is_accepted: boolean;
+  is_rejected: boolean;
+  is_cancelled: boolean;
 }
 
 const fetchAvaliabilityRoomsByRoomId = async (ctx: QueryFunctionContext) => {

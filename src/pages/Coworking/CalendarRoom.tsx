@@ -89,7 +89,7 @@ const CalendarRoom = ({ roomId }: CalendarRoomProps) => {
                     key={dateStr}
                     onClick={() => availability && setSelectedAvailability(availability)}
                     className={`relative rounded p-1 text-xs transition-all md:p-2 md:text-sm ${
-                      availability?.disponibility
+                      availability?.is_null
                         ? 'bg-green-100 text-green-800 hover:bg-green-200'
                         : 'bg-gray-50 text-gray-400 cursor-default'
                     } ${
@@ -97,7 +97,7 @@ const CalendarRoom = ({ roomId }: CalendarRoomProps) => {
                     } ${
                       isSelected ? '!bg-green-500 !text-white !ring-2 !ring-green-700' : ''
                     }`}
-                    disabled={!availability?.disponibility}
+                    disabled={!availability?.is_null}
                   >
                     {day.getDate()}
                   </button>

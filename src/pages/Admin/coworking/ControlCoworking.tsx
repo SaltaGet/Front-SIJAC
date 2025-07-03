@@ -43,10 +43,15 @@ type RoomAppointment = {
 
 type Availability = {
   id: string;
-  date_all: string;
-  start_time: string;
-  end_time: string;
-  disponibility: boolean;
+  date_all: string; // This is in YYYY-MM-DD format
+  start_time: string; // This is in ISO format with timezone
+  end_time: string; // This is in ISO format with timezone
+  is_null: boolean;
+  is_pending: boolean;
+  is_reserved: boolean;
+  is_accepted: boolean;
+  is_rejected: boolean;
+  is_cancelled: boolean;
 };
 
 interface UpdateData {
@@ -265,7 +270,7 @@ const ControlCoworking = () => {
               const dayAvailabilities = isCurrentMonth ? getDayAvailability(day) : [];
               const isAvailable = dayAvailabilities.length > 0;
               const isSelected = selectedDate && isSameDay(day, selectedDate);
-              const hasReservations = dayAvailabilities.some(avail => !avail.disponibility);
+              const hasReservations = dayAvailabilities.some(avail => !avail);
               const isPast = !isAfter(day, new Date());
 
               return (
