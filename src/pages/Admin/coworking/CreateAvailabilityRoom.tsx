@@ -83,7 +83,7 @@ const CreateAvailabilityRoom: React.FC<CreateAvailabilityRoomProps> = ({
     // Verificar si ya está marcado como disponible
     const dateString = date.toISOString().split('T')[0];
     const isAlreadyAvailable = existingAvailabilities?.some(
-      avail => avail.date_all === dateString && avail.disponibility
+      avail => avail.date_all === dateString && avail.is_null
     ) ?? false;
     
     return isPastDate || isWeekend || isAlreadyAvailable;
@@ -94,7 +94,7 @@ const CreateAvailabilityRoom: React.FC<CreateAvailabilityRoomProps> = ({
     if (!existingAvailabilities) return [];
     
     return existingAvailabilities
-      .filter(avail => avail.disponibility)
+      .filter(avail => avail.is_null)
       .map(avail => {
         return new Date(avail.date_all + 'T00:00:00');
       });
