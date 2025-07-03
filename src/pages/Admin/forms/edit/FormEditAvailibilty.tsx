@@ -92,7 +92,7 @@ export const FormEditAvailibilty = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["availabilityRooms"] });
-      queryClient.invalidateQueries({ queryKey: ["roomAppoinment"] });
+      queryClient.invalidateQueries({ queryKey: ["roomAppointment"] });
       onClose();
     },
     onError: () => {

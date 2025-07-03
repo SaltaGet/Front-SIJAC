@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiSijac from "@/api/sijac";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -42,10 +42,13 @@ export const FormEditRoom = ({ roomData, roomId, onClose }: FormEditRoomProps) =
     defaultValues: roomData,
   });
 
+  const queryClient = useQueryClient();
+
   const { mutate, isPending } = useMutation({
     mutationFn: updateRoom,
     onSuccess: () => {
       alert("Oficina actualizada con éxito");
+      queryClient.invalidateQueries({ queryKey: ["roomsAll"] });
       reset();
       onClose?.(); // Cierra el modal si existe la función
     },

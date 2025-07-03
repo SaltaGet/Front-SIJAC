@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import useAuthStore from "@/store/useAuthStore";
 import apiSijac from "@/api/sijac";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type FormData = {
   first_name: string;
@@ -31,9 +31,12 @@ export const FormRoomPlan = () => {
     reset,
   } = useForm<FormData>();
 
+  const queryClient = useQueryClient();
+
   const { mutate, isPending } = useMutation({
     mutationFn: postPlan,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["roomPlans"] });
       alert("Plan creado con éxito");
       reset();
     },
