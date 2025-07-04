@@ -91,6 +91,7 @@ export const FormCoworking = ({ onClose, selectedAppointments, roomId, resetAppo
       setShowSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["roomAppointment"] });
       queryClient.invalidateQueries({ queryKey: ["availabilityRooms"] });
+      queryClient.invalidateQueries({ queryKey: ["roomPlans"] });
       resetAppointments();
       const timer = setTimeout(() => {
         onClose();
