@@ -9,12 +9,13 @@ import AdimEditPost from "./AdminEditBlog";
 import AdminClients from "./AdminClients";
 import AdminCases from "./AdminCases";
 import AdminAssigTurn from "./AdminAssigTurn";
-import AdminCoworking from "./coworking/AdminCoworking"; // Asegúrate de crear este componente
+import AdminCoworking from "./coworking/AdminCoworking";
 
-const SECTIONS = [
+// Define all possible sections
+const ALL_SECTIONS = [
   { id: "selector", label: "Turnos" },
   { id: "appointment", label: "Calendario" },
-  { id: "coworking", label: "Coworking" }, // Nueva sección
+  { id: "coworking", label: "Coworking" },
   { id: "createPost", label: "Posts" },
   { id: "editPost", label: "Editar Posts" },
   { id: "clients", label: "Clientes" },
@@ -22,17 +23,29 @@ const SECTIONS = [
   { id: "assig-turn", label: "Asignaciones" },
 ] as const;
 
-type Section = typeof SECTIONS[number]['id'];
+type Section = typeof ALL_SECTIONS[number]['id'];
 
 const Admin = () => {
   const [activeSection, setActiveSection] = useState<Section>("selector");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { token, clearAuth } = useAuthStore();
+  const { token, clearAuth, role } = useAuthStore();
   const navigate = useNavigate();
+
+  // Filter sections based on role
+  const SECTIONS = ALL_SECTIONS.filter(section => {
+    if (section.id === "coworking") {
+      return role === "secretary"; // Only show coworking for secretaries
+    }
+    return role !== "secretary"; // Show all other sections for non-secretaries
+  });
 
   useEffect(() => {
     if (!token) navigate("/login");
-  }, [token, navigate]);
+    // If secretary and trying to access non-coworking section, redirect to coworking
+    if (role === "secretary" && activeSection !== "coworking") {
+      setActiveSection("coworking");
+    }
+  }, [token, navigate, role, activeSection]);
 
   const handleLogout = () => {
     clearAuth();
@@ -58,10 +71,12 @@ const Admin = () => {
         </button>
       </header>
 
-      {/* Sidebar - Compacto y profesional */}
+      {/* Sidebar */}
       <aside className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-56 bg-prim-100 border-r border-prim-200`}>
         <div className="p-4 border-b border-prim-200">
-          <h2 className="text-lg font-semibold text-prim-700 hidden md:block">Administración</h2>
+          <h2 className="text-lg font-semibold text-prim-700 hidden md:block">
+            {role === "secretary" ? "Secretaría" : "Administración"}
+          </h2>
         </div>
         
         <nav className="p-2 space-y-1">
@@ -97,7 +112,7 @@ const Admin = () => {
         {activeSection === "clients" && <AdminClients />}
         {activeSection === "cases" && <AdminCases />}
         {activeSection === "assig-turn" && <AdminAssigTurn />}
-        {activeSection === "coworking" && <AdminCoworking />} {/* Nueva sección */}
+        {activeSection === "coworking" && <AdminCoworking />}
       </main>
     </div>
   );
