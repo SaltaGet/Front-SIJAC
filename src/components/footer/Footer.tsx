@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
+import { Code2 } from "lucide-react"; // Using Code2 icon for development
 
 const Footer: React.FC = () => {
   const location = useLocation();
@@ -64,7 +64,7 @@ const Footer: React.FC = () => {
             </li>
             <li>
               <Link
-              to={"blogs"}
+                to={"blogs"}
                 className="cursor-pointer hover:text-prim-500 transition"
               >
                 Noticias
@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
             </li>
             <li>
               <Link
-              to={"turnos"}
+                to={"turnos"}
                 className="cursor-pointer hover:text-prim-500 transition"
               >
                 Pedir Turno
@@ -103,6 +103,18 @@ const Footer: React.FC = () => {
 
       <div className="mt-10 text-center text-xs text-gray-500">
         © {new Date().getFullYear()} SIJAC Consultora. Todos los derechos reservados.
+        <div className="mt-2 flex items-center justify-center gap-1">
+          <Code2 className="w-4 h-4" />
+          <span>Desarrollado por </span>
+          <a 
+            href="https://saltaget.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-prim-500 hover:underline"
+          >
+            SaltaGet
+          </a>
+        </div>
       </div>
     </footer>
   );
