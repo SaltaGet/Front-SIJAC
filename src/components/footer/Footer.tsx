@@ -30,7 +30,8 @@ const Footer: React.FC = () => {
         <div>
           <h3 className="text-2xl font-bold text-prim-500 mb-2">SIJAC</h3>
           <p className="text-sm leading-relaxed">
-            Consultora jurídica comprometida con brindar asesoría profesional, personalizada y eficiente.
+            En SIJAC Brindamos Servicio Jurídico Integral con un enfoque global, visión local y
+perspectiva Humana.
           </p>
         </div>
 
@@ -85,7 +86,7 @@ const Footer: React.FC = () => {
         <div>
           <h4 className="font-semibold mb-2">Contacto</h4>
           <p className="text-sm mb-1">
-            Email: contacto@sijac.com
+            Email: coworkingsijac@gmail.com
           </p>
           <p className="text-sm">
             Dirección:{" "}
@@ -95,7 +96,7 @@ const Footer: React.FC = () => {
               rel="noopener noreferrer"
               className="text-prim-500 hover:underline"
             >
-              Calle 25 de Mayo 427, Salta Capital
+              Calle 25 de Mayo 429, Salta Capital
             </a>
           </p>
         </div>

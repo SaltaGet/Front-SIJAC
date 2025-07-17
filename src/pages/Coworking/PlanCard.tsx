@@ -4,7 +4,7 @@ interface PlanCardProps {
   title: string;
   subtitle: string;
   price: string;
-  period: string;
+  period?: string;
   features: string[];
   buttonText: string;
   buttonColor: string;
@@ -32,7 +32,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
       
       <div className="p-6 flex-grow">
         <div className="text-3xl font-bold text-gray-800 mb-4">
-          ${price} <span className="text-lg font-normal text-gray-600">/{period}</span>
+          {price} <span className="text-lg font-normal text-gray-600">/{period}</span>
         </div>
         <ul className="space-y-3 mb-6">
           {features.map((feature, index) => (

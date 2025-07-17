@@ -56,7 +56,7 @@ const Header: React.FC = () => {
             onClick={() => handleNavigation("mediaciones")}
             className="cursor-pointer hover:text-prim-500 transition"
           >
-            Mediaciones
+            Centro de Mediación
           </span>
           <Link to="/blogs" className="hover:text-prim-500 transition">
             Noticias
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
             to="/coworking" 
             className="hover:text-prim-500 transition"
           >
-            Oficinas Compartidas
+            Coworking Juridico
           </Link>
         </nav>
 
