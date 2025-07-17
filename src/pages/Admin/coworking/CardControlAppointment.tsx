@@ -73,7 +73,7 @@ const CardControlAppointment: React.FC<CardControlAppointmentProps> = ({ appoint
   const mutation = useMutation({
     mutationFn: updateState,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roomAppoinment'] });
+      queryClient.invalidateQueries({ queryKey: ['roomAppointment'] });
       queryClient.invalidateQueries({ queryKey: ['appointment-details'] });
       if (showDetails) {
         refetch();
@@ -100,7 +100,7 @@ const CardControlAppointment: React.FC<CardControlAppointmentProps> = ({ appoint
   const stateOptions: UpdateData['newState'][] = 
     state === 'nulo' 
       ? ['cancelado'] // Solo cancelar disponible para estado nulo
-      : ['pendiente', 'aceptado', 'cancelado', 'reservado']; // Todas las opciones para otros estados
+      : ['pendiente', 'aceptado', 'cancelado']; // Todas las opciones para otros estados
 
   return (
     <div 

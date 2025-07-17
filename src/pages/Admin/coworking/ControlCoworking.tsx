@@ -100,7 +100,7 @@ const ControlCoworking = () => {
     mutationFn: deleteAvailability,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['availabilityRooms', selectedRoomId] });
-      queryClient.invalidateQueries({ queryKey: ['roomAppoinment'] });
+      queryClient.invalidateQueries({ queryKey: ['roomAppointment'] });
       alert('Disponibilidad eliminada con éxito');
       setSelectedDate(null);
       setSelectedAvailabilityId(null);
@@ -235,7 +235,7 @@ const ControlCoworking = () => {
   if (isLoading) return <div>Cargando salas...</div>;
 
   const groupedAppointments = appointments ? groupAppointments(appointments) : {};
-  const stateOptions: UpdateData['newState'][] = ['pendiente', 'aceptado', 'cancelado', 'reservado'];
+  const stateOptions: UpdateData['newState'][] = ['pendiente', 'aceptado', 'cancelado'];
 
   return (
     <div className="p-4">
