@@ -27,6 +27,9 @@ const Header: React.FC = () => {
     setIsOpen(false);
   };
 
+  // Verificar si estamos en la ruta /coworking
+  const isCoworkingPage = location.pathname === "/coworking";
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -61,7 +64,6 @@ const Header: React.FC = () => {
           <Link to="/blogs" className="hover:text-prim-500 transition">
             Noticias
           </Link>
-          {/* Nueva opción */}
           <Link 
             to="/coworking" 
             className="hover:text-prim-500 transition"
@@ -70,13 +72,15 @@ const Header: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Turno button (desktop) */}
-        <Link
-          to={"/turnos?mediador=false"}
-          className="hidden md:inline-block bg-prim-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
-        >
-          Pedir Turno
-        </Link>
+        {/* Turno button (desktop) - Solo visible si no estamos en /coworking */}
+        {!isCoworkingPage && (
+          <Link
+            to={"/turnos?mediador=false"}
+            className="hidden md:inline-block bg-prim-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
+          >
+            Pedir Turno
+          </Link>
+        )}
 
         {/* Mobile menu button */}
         <button onClick={toggleMenu} className="md:hidden text-prim-500">
@@ -112,7 +116,6 @@ const Header: React.FC = () => {
           >
             Noticias
           </Link>
-          {/* Nueva opción (mobile) */}
           <Link
             to="/coworking"
             className="block hover:text-prim-500 transition"
@@ -120,13 +123,16 @@ const Header: React.FC = () => {
           >
             Oficinas Compartidas
           </Link>
-          <Link
-            to={"turnos"}
-            className="block bg-prim-500 text-white text-center px-4 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Pedir Turno
-          </Link>
+          {/* Turno button (mobile) - Solo visible si no estamos en /coworking */}
+          {!isCoworkingPage && (
+            <Link
+              to={"turnos"}
+              className="block bg-prim-500 text-white text-center px-4 py-2 rounded-full font-semibold hover:bg-prim-600 transition"
+              onClick={() => setIsOpen(false)}
+            >
+              Pedir Turno
+            </Link>
+          )}
         </div>
       )}
     </header>
