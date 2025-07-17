@@ -33,15 +33,14 @@ const Admin = () => {
 
   // Filter sections based on role
   const SECTIONS = ALL_SECTIONS.filter(section => {
-    if (section.id === "coworking") {
-      return role === "secretary"; // Only show coworking for secretaries
-    }
-    return role !== "secretary"; // Show all other sections for non-secretaries
+    if (role === "admin") return true; // Admin puede ver todo
+    if (role === "secretary") return section.id === "coworking"; // Secretary solo ve coworking
+    return section.id !== "coworking"; // Otros roles no ven coworking
   });
 
   useEffect(() => {
     if (!token) navigate("/login");
-    // If secretary and trying to access non-coworking section, redirect to coworking
+    // Si es secretary y está intentando acceder a una sección no permitida, redirigir a coworking
     if (role === "secretary" && activeSection !== "coworking") {
       setActiveSection("coworking");
     }

@@ -6,6 +6,7 @@ import useAuthStore from '@/store/useAuthStore';
 import apiSijac from '@/api/sijac';
 import { useMutation } from '@tanstack/react-query';
 import { FormEditRoom } from '../forms/edit/FormEditRoom';
+import FormEditImagesRoom from '../forms/edit/FormEditImagesRoom';
 
 const deleteRoom = async (id: string) => {
   const token = useAuthStore.getState().token;
@@ -22,6 +23,8 @@ export const TableRooms = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+
+  const [activeTab, setActiveTab] = useState('general');
 
   const { mutate } = useMutation({
     mutationFn: deleteRoom,
@@ -183,12 +186,43 @@ export const TableRooms = () => {
 
       {/* Modal de edición */}
       {showEditModal && selectedRoom && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <FormEditRoom roomData={selectedRoom} roomId={selectedRoom.id} onClose={() => setShowEditModal(false)} />
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-4">
+          <button
+            onClick={() => setActiveTab('general')}
+            className={`py-2 px-3 font-medium text-sm ${activeTab === 'general' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Edición General
+          </button>
+          <button
+            onClick={() => setActiveTab('images')}
+            className={`py-2 px-3 font-medium text-sm ${activeTab === 'images' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Editar Imágenes
+          </button>
+        </nav>
+      </div>
+      
+      <div className="mt-4">
+        {activeTab === 'general' ? (
+          <FormEditRoom 
+            roomData={selectedRoom} 
+            roomId={selectedRoom.id} 
+            onClose={() => setShowEditModal(false)} 
+          />
+        ) : (
+          <FormEditImagesRoom 
+            roomId={selectedRoom.id} 
+            initialImages={selectedRoom.url_image || []} 
+            onClose={() => setShowEditModal(false)}
+          />
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal de asignación de turnos */}
       {showAssignModal && selectedRoom && (
