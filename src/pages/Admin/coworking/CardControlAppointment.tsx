@@ -75,6 +75,7 @@ const CardControlAppointment: React.FC<CardControlAppointmentProps> = ({ appoint
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['roomAppointment'] });
       queryClient.invalidateQueries({ queryKey: ['appointment-details'] });
+      queryClient.invalidateQueries({ queryKey: ['availabilityRooms'] });
       if (showDetails) {
         refetch();
       }

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { FormRoom } from '../forms/FormRoom';
 import { TableRooms } from './TableRooms';
-import ControlCoworking from './ControlCoworking';
 import CreateAppointment from './CreateAppointment';
 import ControlRoomPlan from './ControlRoomPlan';
+import ControlCoworking from './controCoworking/ControlCoworking';
 
 export const OficinasAdmin = () => {
   // Agregamos 'room-plan' al tipo de activeTab
