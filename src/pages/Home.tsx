@@ -1,34 +1,36 @@
 import { useUser } from "@/hooks/client/useUser";
-import React, { useState, useRef, useEffect } from "react";
+// import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView } from "framer-motion";
+// import { motion, useInView } from "framer-motion";
 import CarruselNosotros from "@/components/carrusel/CarruselNosotros";
 import portada from "@/assets/fotos/portada.png";
+import { motion } from "framer-motion";
+import React, { useRef } from "react";
 
 const Home: React.FC = () => {
   const { usersData } = useUser();
-  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+  // const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
 
   const equipoRef = useRef(null);
-  const isInView = useInView(equipoRef, { once: true });
+  // const isInView = useInView(equipoRef, { once: true });
 
-  const handleCardClick = (userId: string) => {
-    setFlippedCards(prev => ({
-      ...prev,
-      [userId]: !prev[userId]
-    }));
-  };
+  // const handleCardClick = (userId: string) => {
+  //   setFlippedCards(prev => ({
+  //     ...prev,
+  //     [userId]: !prev[userId]
+  //   }));
+  // };
 
-  useEffect(() => {
-    if (isInView && usersData) {
-      const reset: Record<string, boolean> = {};
-      usersData.forEach(u => reset[u.id] = true);
-      setFlippedCards(reset);
+  // useEffect(() => {
+  //   if (isInView && usersData) {
+  //     const reset: Record<string, boolean> = {};
+  //     usersData.forEach(u => reset[u.id] = true);
+  //     setFlippedCards(reset);
 
-      const timeout = setTimeout(() => setFlippedCards({}), 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isInView, usersData]);
+  //     const timeout = setTimeout(() => setFlippedCards({}), 2000);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [isInView, usersData]);
 
   return (
     <motion.div
@@ -111,50 +113,65 @@ perspectiva Humana.
 
       <CarruselNosotros/>
 
-      {/* Nuestro Equipo */}
-      <motion.section id="profesionales" ref={equipoRef} className="py-16 px-6 bg-gray-50 text-center"
-        initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8 }}>
-        <h2 className="text-3xl font-bold mb-10 text-prim-500">Nuestro Equipo</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          {usersData?.map((user, idx) => {
-            const isFlipped = flippedCards[user.id] || false;
-            return (
-              <motion.div key={user.id} 
-                className="relative w-full h-64 [perspective:1000px] cursor-pointer"
-                onClick={() => handleCardClick(user.id)}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}>
-                <div className="absolute w-full h-full rounded-xl shadow-md border border-gray-200 transition-transform duration-700"
-                  style={{ transformStyle: "preserve-3d", transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}>
-                  {/* Frente */}
-                  <div style={{ backfaceVisibility: "hidden" }}
-                    className="absolute w-full h-full bg-white rounded-xl p-6 flex flex-col items-center justify-center">
-                    <motion.img src={user.url_image} alt={`${user.first_name} ${user.last_name}`}
-                      className="w-47 h-47 rounded-full mb-4 object-cover border shadow"
-                      whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }} />
-                    <h3 className="font-semibold text-lg">{user.first_name} {user.last_name}</h3>
-                  </div>
-                 {/* Reverso */}
-                  <div style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
-                    className="absolute w-full h-full bg-prim-500 text-white rounded-xl p-6 flex flex-col items-center justify-center">
-                    <h3 className="font-bold text-xl mb-2 text-center">
-                      {user.first_name.toUpperCase()} {user.last_name.toUpperCase()} - {'ABOGADA'} & MEDIADORA
-                    </h3>
-                    <ul className="text-white/90 font-semibold space-y-1 text-center">
-                      {user.specialty.split('-').map((item, index) => (
-                        item.trim() && <li key={index}>• {item.trim()}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
+            {/* Nuestro Equipo */}
+<motion.section
+  id="profesionales"
+  ref={equipoRef}
+  className="py-16 px-6 bg-gray-50 text-center"
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, amount: 0.3 }}
+  transition={{ duration: 0.8 }}
+>
+  <h2 className="text-3xl font-bold mb-10 text-prim-500">Nuestro Equipo</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+    {usersData?.map((user, idx) => (
+      <motion.div
+        key={user.id}
+        className="relative w-full h-100 [perspective:1000px] group"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6, delay: idx * 0.1 }}
+      >
+        <div
+          className="absolute w-full h-full rounded-xl shadow-md border border-gray-200 transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
+        >
+          {/* Frente */}
+          <div
+            style={{ backfaceVisibility: "hidden" }}
+            className="absolute w-full h-full bg-white rounded-xl overflow-hidden"
+          >
+            <motion.img
+              src={user.url_image}
+              alt={`${user.first_name} ${user.last_name}`}
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+
+          {/* Reverso */}
+          <div
+            style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
+            className="absolute w-full h-full bg-prim-500 text-white rounded-xl p-6 flex flex-col items-center justify-center"
+          >
+            <h3 className="font-bold text-xl mb-2 text-center">
+  {user.first_name.toUpperCase()} {user.last_name.toUpperCase()} - ABOGADA
+  {user.specialty.toLowerCase().includes("mediador") && " & MEDIADORA"}
+</h3>
+            <ul className="text-white/90 font-semibold space-y-1 text-center">
+              {user.specialty.split('-').map((item, index) =>
+                item.trim() && <li key={index}>• {item.trim()}</li>
+              )}
+            </ul>
+          </div>
         </div>
-      </motion.section>
+      </motion.div>
+    ))}
+  </div>
+</motion.section>
+
 
       {/* Mediaciones */}
 <motion.section id="mediaciones" className="py-16 px-6 bg-white text-center"
@@ -191,7 +208,7 @@ perspectiva Humana.
         </p>
       </motion.div>
     </div>
-    
+
     <div className="text-center">
       <Link to="/turnos?mediador=true" className="bg-prim-500 text-white font-semibold px-6 py-3 rounded-full hover:bg-prim-600 shadow transition inline-block">
         Pedir Turno para Mediadores

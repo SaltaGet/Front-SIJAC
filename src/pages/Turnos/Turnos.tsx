@@ -7,6 +7,7 @@ import { useUser } from "@/hooks/client/useUser";
 import React, { useState, useEffect, useRef } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import portada from "@/assets/fotos/portada.png";
 
 import {
   Dialog,
@@ -148,7 +149,10 @@ const Turnos: React.FC = () => {
   return (
     <div className="flex flex-col text-gray-900">
       {/* Hero Section */}
-      <section className="bg-[url('/hero-bg.jpg')] bg-cover bg-center text-white py-24 px-6 text-center bg-black/60 bg-blend-multiply">
+      <section
+        className="bg-[url('/hero-bg.jpg')] bg-cover bg-center text-white py-24 px-6 text-center bg-black/60 bg-blend-multiply"
+        style={{ backgroundImage: `url(${portada})` }}
+      >
         <h1 className="text-4xl md:text-6xl font-bold mb-2">SIJAC</h1>
         <p className="text-xl tracking-wide mb-6">CONSULTORA</p>
       </section>
@@ -172,26 +176,27 @@ const Turnos: React.FC = () => {
           {usersData?.map((user) => (
             <div
               key={user.id}
-              className={`${
-                selectedProfessional === user.id
-                  ? "bg-prim-500 text-white"
-                  : "bg-white text-prim-500"
-              } rounded-xl p-6 shadow-sm border border-gray-200 cursor-pointer transition hover:bg-prim-100`}
+              className={`relative rounded-xl shadow-sm border border-gray-200 cursor-pointer overflow-hidden group transition h-100 w-70`}
               onClick={() => handleProfessionalSelect(user.id)}
             >
+              {/* Imagen con efecto de zoom */}
               {user.url_image ? (
                 <img
                   src={user.url_image}
                   alt={`${user.first_name} ${user.last_name}`}
-                  className="w-24 h-24 mx-auto rounded-full object-cover mb-4"
+                  className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-24 h-24 mx-auto bg-prim-100 rounded-full mb-4" />
+                <div className="w-full h-full bg-prim-100" />
               )}
-              <h3 className="font-semibold text-lg">
-                {user.first_name} {user.last_name}
-              </h3>
-              <p className="text-sm text-gray-600">{user.specialty}</p>
+
+              {/* Overlay con datos (aparece al hacer hover) */}
+              <div className="absolute bottom-0 left-0 w-full bg-black/60 text-white p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <h3 className="font-semibold text-lg">
+                  {user.first_name} {user.last_name}
+                </h3>
+                {/* <p className="text-sm text-gray-200">{user.specialty}</p> */}
+              </div>
             </div>
           ))}
         </div>
@@ -210,7 +215,7 @@ const Turnos: React.FC = () => {
             {hasAvailableDates ? (
               <div className="flex flex-col items-center mt-8">
                 <DayPicker
-                  key={selectedProfessional} 
+                  key={selectedProfessional}
                   selected={selectedDate}
                   onDayClick={handleDateSelect}
                   mode="single"
@@ -283,7 +288,9 @@ const Turnos: React.FC = () => {
             ) : (
               <div className="mt-8 p-4 bg-gray-100 rounded-lg max-w-md mx-auto">
                 <p className="text-lg text-white p-4 font-bold rounded-2xl bg-red-500">
-                  {isMediador ? "El mediador no tiene turnos disponibles en este momento." : "El profesional no tiene turnos disponibles en este momento."}
+                  {isMediador
+                    ? "El mediador no tiene turnos disponibles en este momento."
+                    : "El profesional no tiene turnos disponibles en este momento."}
                 </p>
               </div>
             )}

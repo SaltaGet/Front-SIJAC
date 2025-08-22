@@ -23,7 +23,7 @@ export function useUser(mediador: boolean = false) {
   })
 
   const usersData = mediador
-    ? data?.filter(user => user.specialty.includes("Mediador"))
+    ? data?.filter(user => user.specialty.includes("Mediador") || user.specialty.includes("Mediadora"))
     : data
 
   return { usersData, refetchUsers: refetch }
