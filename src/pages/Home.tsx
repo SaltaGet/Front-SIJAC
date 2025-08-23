@@ -209,27 +209,40 @@ const Home: React.FC = () => {
 
                 {/* Reverso */}
                 <div
-                  style={{
-                    transform: "rotateY(180deg)",
-                    backfaceVisibility: "hidden",
-                  }}
-                  className="absolute w-full h-full bg-prim-500 text-white rounded-xl p-6 flex flex-col items-center justify-center"
-                >
-                  <h3 className="font-bold text-xl mb-2 text-center">
-                    {user.first_name.toUpperCase()}{" "}
-                    {user.last_name.toUpperCase()} - ABOGADA
-                    {user.specialty.toLowerCase().includes("mediaciones extrajudiciales") &&
-                      " & MEDIACIONES EXTRAJUDICIALES"}
-                  </h3>
-                  <ul className="text-white/90 font-semibold space-y-1 text-center">
-                    {user.specialty
-                      .split("-")
-                      .map(
-                        (item, index) =>
-                          item.trim() && <li key={index}>• {item.trim()}</li>
-                      )}
-                  </ul>
-                </div>
+  style={{
+    transform: "rotateY(180deg)",
+    backfaceVisibility: "hidden",
+  }}
+  className="absolute w-full h-full bg-prim-500 text-white rounded-xl p-8 flex flex-col justify-center"
+>
+  <div className="text-center mb-6">
+    <h3 className="font-bold text-2xl mb-3 leading-tight text-slate-100">
+      {user.first_name.toUpperCase()}{" "}
+      {user.last_name.toUpperCase()}
+    </h3>
+    {user.specialty.toLowerCase().includes("mediaciones extrajudiciales") && (
+      <span className="inline-block bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-semibold tracking-wide">
+        MEDIACIONES EXTRAJUDICIALES
+      </span>
+    )}
+  </div>
+
+  <div className="flex-1 flex items-start justify-center">
+    <ul className="text-white/90 font-medium space-y-2 text-left max-w-xs">
+      {user.specialty
+        .split("-")
+        .map(
+          (item, index) =>
+            item.trim() && (
+              <li key={index} className="flex items-start">
+                <span className="w-1 h-1 bg-white/70 rounded-full mr-2 mt-2"></span>
+                <span className="text-sm leading-relaxed">{item.trim()}</span>
+              </li>
+            )
+        )}
+    </ul>
+  </div>
+</div>
               </div>
             </motion.div>
           ))}
