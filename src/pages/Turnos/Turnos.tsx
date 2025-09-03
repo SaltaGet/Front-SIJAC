@@ -153,8 +153,8 @@ const Turnos: React.FC = () => {
         className="bg-[url('/hero-bg.jpg')] bg-cover bg-center text-white py-24 px-6 text-center bg-black/60 bg-blend-multiply"
         style={{ backgroundImage: `url(${portada})` }}
       >
-        <h1 className="text-4xl md:text-6xl font-bold mb-2">SIJAC</h1>
-        <p className="text-xl tracking-wide mb-6">CONSULTORA</p>
+        <h1 className="text-4xl md:text-4xl font-bold mb-2">PODEMOS HABLAR</h1>
+        <p className="text-xl tracking-wide mb-6">CENTRO DE MEDIACION</p>
       </section>
 
       {/* Turnos Section */}
@@ -289,8 +289,8 @@ const Turnos: React.FC = () => {
               <div className="mt-8 p-4 bg-gray-100 rounded-lg max-w-md mx-auto">
                 <p className="text-lg text-white p-4 font-bold rounded-2xl bg-red-500">
                   {isMediador
-                    ? "El mediador no tiene turnos disponibles en este momento."
-                    : "El profesional no tiene turnos disponibles en este momento."}
+                    ? "La mediadora no tiene turnos disponibles en este momento."
+                    : "El/La profesional no tiene turnos disponibles en este momento."}
                 </p>
               </div>
             )}
