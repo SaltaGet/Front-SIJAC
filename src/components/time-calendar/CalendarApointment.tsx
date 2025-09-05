@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { FaWhatsapp } from "react-icons/fa";
-import { FaGoogle} from "react-icons/fa"; // Puedes usar FaGoogle o FaCalendarAlt
+import { FaWhatsapp, FaGoogle } from "react-icons/fa";
 import { Appointment, useAppointment } from "@/hooks/admin/useAppointment";
 import { formatearFecha } from "@/util/formatFecha";
 import AdminEditAppointment from "@/pages/Admin/AdminEditAppointment";
@@ -23,9 +22,70 @@ const statusColors = {
   cancelado: "bg-red-500 text-white",
   rechazado: "bg-yellow-500 text-white",
 };
+
+// Modal de Confirmación
+const ConfirmationModal: React.FC<{
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  confirmColor?: string;
+}> = ({
+  isOpen,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
+  confirmColor = "bg-red-500 hover:bg-red-600"
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-mx-4 shadow-xl">
+        <h3 className="text-lg font-bold text-gray-900 mb-3">{title}</h3>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded transition"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`px-4 py-2 text-white rounded transition ${confirmColor}`}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedEvent, setSelectedEvent] = useState<Appointment | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'accept' | 'reject' | 'cancel' | 'delete' | 'unavailable' | null;
+    title: string;
+    message: string;
+    confirmColor: string;
+  }>({ 
+    isOpen: false, 
+    type: null, 
+    title: '', 
+    message: '', 
+    confirmColor: 'bg-blue-500 hover:bg-blue-600' 
+  });
+
   const {
     appointmentsData: events,
     updateStatus,
@@ -56,12 +116,117 @@ const Calendar: React.FC = () => {
 
   const eventDates = new Set(events?.map((e) => e.date_get));
 
+  // Verificar si la fecha seleccionada NO tiene turnos (para mostrar botón "No disponible")
+  const hasNoAppointments = selectedDate && filteredEvents.length === 0;
+
   const handleStatusUpdate = (
     newState: string,
     reason = "Pedimos disculpa por el inconveniente ha surgido un inconveniente en este horario y no podremos atenderte"
   ) => {
     if (!selectedEvent) return;
     updateStatus({ appointmentId: selectedEvent.id, newState, reason });
+  };
+
+  // Funciones para manejar confirmaciones
+  const handleAcceptConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'accept',
+      title: '✅ Aceptar Turno',
+      message: '¿Estás seguro de que quieres confirmar este turno?',
+      confirmColor: 'bg-green-500 hover:bg-green-600'
+    });
+  };
+
+  const handleRejectConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'reject',
+      title: '❌ Rechazar Turno',
+      message: '¿Estás seguro de que quieres rechazar este turno? Esta acción borrará el horario y no se podrá deshacer.',
+      confirmColor: 'bg-red-500 hover:bg-red-600'
+    });
+  };
+
+  const handleCancelConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'cancel',
+      title: 'Cancelar Turno',
+      message: '¿Estás seguro de que quieres cancelar este turno? El horario volverá a estar disponible.',
+      confirmColor: 'bg-yellow-500 hover:bg-yellow-600'
+    });
+  };
+
+  const handleUnavailableConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'unavailable',
+      title: 'Marcar como No Disponible',
+      message: '¿Estás seguro de que quieres marcar como no disponible? Esta acción borrará el horario.',
+      confirmColor: 'bg-red-500 hover:bg-red-600'
+    });
+  };
+
+  const handleDeleteConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete',
+      title: 'Borrar Horario Completo',
+      message: '¿Estás seguro? Todos los turnos aceptados y pendientes serán rechazados automáticamente y se eliminará el horario completo.',
+      confirmColor: 'bg-red-500 hover:bg-red-600'
+    });
+  };
+
+  // Función para confirmar acciones
+  const handleConfirmAction = () => {
+    switch (confirmModal.type) {
+      case 'accept':
+        if (selectedEvent) {
+          handleStatusUpdate("aceptado");
+        }
+        break;
+      case 'reject':
+        if (selectedEvent) {
+          handleStatusUpdate("rechazado", "Turno rechazado - Horario eliminado");
+        }
+        break;
+      case 'cancel':
+        if (selectedEvent) {
+          handleStatusUpdate("cancelado");
+        }
+        break;
+      case 'unavailable':
+        if (selectedEvent) {
+          handleStatusUpdate("rechazado", "Turno rechazado - Horario eliminado");
+        } else if (filteredEvents.length > 0) {
+          mutateDelete(filteredEvents[0].availability_id);
+        }
+        break;
+      case 'delete':
+        if (filteredEvents.length > 0) {
+          mutateDelete(filteredEvents[0].availability_id);
+        }
+        break;
+    }
+    setConfirmModal({ 
+      isOpen: false, 
+      type: null, 
+      title: '', 
+      message: '', 
+      confirmColor: 'bg-blue-500 hover:bg-blue-600' 
+    });
+  };
+
+  // Función para cancelar confirmación
+  const handleCancelAction = () => {
+    setConfirmModal({ 
+      isOpen: false, 
+      type: null, 
+      title: '', 
+      message: '', 
+      confirmColor: 'bg-blue-500 hover:bg-blue-600' 
+    });
   };
 
   useEffect(() => {
@@ -75,6 +240,18 @@ const Calendar: React.FC = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
+      {/* Modal de Confirmación */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
+        confirmText="Sí, continuar"
+        cancelText="Cancelar"
+        confirmColor={confirmModal.confirmColor}
+      />
+
       <DayPicker
         selected={selectedDate}
         onDayClick={handleDateChange}
@@ -115,7 +292,7 @@ const Calendar: React.FC = () => {
       {selectedDate ? (
         filteredEvents.length > 0 ? (
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold  text-blue-600 p-2 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-600 p-2 rounded-lg">
               Turnos Para el {formatearFecha(new Date(selectedDate))}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -135,9 +312,20 @@ const Calendar: React.FC = () => {
             </div>
           </div>
         ) : (
-          <p className="text-gray-500 italic">
-            No hay turnos para esta fecha con el estado seleccionado.
-          </p>
+          <div className="space-y-3">
+            <p className="text-gray-500 italic">
+              No hay turnos para esta fecha.
+            </p>
+            {/* Botón "No disponible" solo aparece cuando la fecha tiene horarios disponibles pero NO hay turnos */}
+            {hasNoAppointments && (
+              <ActionButton
+                onClick={handleDeleteConfirmation}
+                disabled={isPendingDelete}
+                color="red"
+                label="Marcar fecha como No Disponible"
+              />
+            )}
+          </div>
         )
       ) : null}
 
@@ -184,16 +372,16 @@ const Calendar: React.FC = () => {
             {selectedEvent.state === "pendiente" && (
               <>
                 <ActionButton
-                  onClick={() => handleStatusUpdate("aceptado")}
+                  onClick={handleAcceptConfirmation}
                   disabled={isPendingStatus}
                   color="green"
-                  label="Aceptar"
+                  label="✅ Aceptar"
                 />
                 <ActionButton
-                  onClick={() => handleStatusUpdate("rechazado")}
+                  onClick={handleRejectConfirmation}
                   disabled={isPendingStatus}
                   color="red"
-                  label="Rechazar"
+                  label="❌ Rechazar"
                 />
               </>
             )}
@@ -201,10 +389,10 @@ const Calendar: React.FC = () => {
             {(selectedEvent.state === "pendiente" ||
               selectedEvent.state === "aceptado") && (
               <ActionButton
-                onClick={() => handleStatusUpdate("cancelado")}
+                onClick={handleCancelConfirmation}
                 disabled={isPendingStatus}
                 color="yellow"
-                label="Cancelar"
+                label="� Cancelar"
               />
             )}
 
@@ -219,12 +407,13 @@ const Calendar: React.FC = () => {
               <GoogleCalendarButton event={selectedEvent} />
             )}
 
-            {selectedEvent?.state !== "rechazado" && !isLoadingAppointments && (
+            {/* Botón "No disponible" aparece cuando NO hay botón Aceptar (no es pendiente) */}
+            {selectedEvent.state !== "pendiente" && !isLoadingAppointments && (
               <ActionButton
-                onClick={() => handleStatusUpdate("rechazado")}
+                onClick={handleUnavailableConfirmation}
                 disabled={isPendingStatus}
                 color="red"
-                label="No disponible"
+                label="� No disponible"
               />
             )}
 
@@ -251,24 +440,17 @@ const Calendar: React.FC = () => {
 
       {filteredEvents.length > 0 && (
         <Button
-          onClick={() => {
-            const confirmDelete = window.confirm(
-              "¿Estás seguro? y los turnos que estén aceptados y pendientes seran Rechazados automáticamente"
-            );
-            if (confirmDelete) {
-              mutateDelete(filteredEvents[0].availability_id);
-            }
-          }}
+          onClick={handleDeleteConfirmation}
           disabled={isPendingDelete}
         >
-          {isPendingDelete ? "Borrando..." : "Borrar Fecha"}
+          {isPendingDelete ? "Borrando..." : "�️ Borrar Fecha"}
         </Button>
       )}
     </div>
   );
 };
 
-// Componentes ActionButton y WhatsAppButton permanecen igual
+// Componente ActionButton
 const ActionButton: React.FC<{
   onClick: () => void;
   disabled: boolean;
@@ -356,8 +538,7 @@ const GoogleCalendarButton: React.FC<{ event: Appointment }> = ({ event }) => {
       rel="noopener noreferrer"
       className="flex items-center gap-2 px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 transition"
     >
-      <FaGoogle size={16} /> {/* Opción 1: Ícono de Google */}
-      {/* <FaCalendarAlt size={16} /> Opción 2: Ícono de calendario */}
+      <FaGoogle size={16} />
       <span>Agregar a Calendar</span>
     </a>
   );
