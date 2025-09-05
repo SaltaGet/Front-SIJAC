@@ -375,14 +375,21 @@
 
 
 import { motion } from 'framer-motion';
+import { ReactNode } from 'react';
 import SelectRoom from "./SelectRoom";
 import PlanCard from "./PlanCard";
 import BenefitCard from "./BenefitCard";
 import portada from "@/assets/fotos/portada.png";
 import { useInView } from 'react-intersection-observer';
 
+// Interfaz para el componente AnimatedSection
+interface AnimatedSectionProps {
+  children: ReactNode;
+  delay?: number;
+}
+
 // Componente contenedor con animación
-const AnimatedSection = ({ children, delay = 0 }) => {
+const AnimatedSection = ({ children, delay = 0 }: AnimatedSectionProps) => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -585,7 +592,7 @@ const Coworking = () => {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, threshold: 0.1 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           {benefits.map((benefit, index) => (
             <motion.div key={index} variants={itemVariants}>
@@ -612,7 +619,7 @@ const Coworking = () => {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, threshold: 0.1 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           {plans.map((plan, index) => (
             <motion.div key={index} variants={itemVariants}>
