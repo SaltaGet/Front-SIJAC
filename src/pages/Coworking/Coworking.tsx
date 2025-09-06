@@ -1780,7 +1780,7 @@ const Coworking = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white items-center flex flex-col">
       {/* Minihero con efecto de parallax mejorado */}
       <motion.section 
         className="text-white py-20 md:py-28 relative overflow-hidden"
@@ -1912,7 +1912,7 @@ const Coworking = () => {
       </section>
 
       {/* Planes para abogados con tarjetas mejoradas */}
-      <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50 rounded-3xl mx-6 mt-8">
+      <section className="max-w-7xl px-6 py-16 bg-gray-50 rounded-3xl mx-6 mt-8 flex flex-col w-full ">
         <AnimatedSection>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -1936,11 +1936,11 @@ const Coworking = () => {
             <motion.div 
               key={index} 
               variants={itemVariants} 
-              className="h-full flex"
+              className="flex h-full"
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               {/* Tarjeta mejorada con altura uniforme */}
-              <div className={`relative bg-white rounded-xl shadow-lg border border-gray-200 h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:border-prim-200 ${plan.isPopular ? 'ring-2 ring-prim-500 ring-offset-3' : ''}`}>
+              <div className={`w-full bg-white shadow-lg border border-gray-200 h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:border-prim-200 ${plan.isPopular ? 'ring-2 ring-prim-500 ring-offset-3' : ''}`}>
                 
                 
                 {/* Badge para plan popular - Posicionado sobre el borde */}
