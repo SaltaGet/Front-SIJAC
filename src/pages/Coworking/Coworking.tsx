@@ -1780,7 +1780,7 @@ const Coworking = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white items-center flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Minihero con efecto de parallax mejorado */}
       <motion.section 
         className="text-white py-20 md:py-28 relative overflow-hidden"
@@ -1871,143 +1871,150 @@ const Coworking = () => {
       </section>
 
       {/* Beneficios con animación escalonada - Mejorado */}
-      <section className="max-w-7xl mx-auto px-6 py-16 relative">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              ¿Qué ofrecemos?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Servicios diseñados específicamente para las necesidades de abogados y profesionales del derecho
-            </p>
-          </div>
-        </AnimatedSection>
+      <section className="py-16 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <AnimatedSection>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                ¿Qué ofrecemos?
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Servicios diseñados específicamente para las necesidades de abogados y profesionales del derecho
+              </p>
+            </div>
+          </AnimatedSection>
 
-        <motion.div 
-          className="grid md:grid-cols-3 gap-8"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
-          {benefits.map((benefit, index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <div className="h-full bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-prim-100 text-prim-500 mb-4">
-                  {benefit.icon}
+          <motion.div 
+            className="grid md:grid-cols-3 gap-8"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {benefits.map((benefit, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <div className="h-full bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-prim-100 text-prim-500 mb-4">
+                    {benefit.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-gray-600">
+                    {benefit.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                  {benefit.title}
-                </h3>
-                <p className="text-gray-600">
-                  {benefit.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
         
         {/* Elemento decorativo */}
         <div className="absolute -bottom-40 right-0 w-80 h-80 bg-prim-50 rounded-full -z-10 opacity-40 blur-3xl"></div>
       </section>
 
       {/* Planes para abogados con tarjetas mejoradas */}
-      <section className="max-w-7xl px-6 py-16 bg-gray-50 rounded-3xl mx-6 mt-8 flex flex-col w-full ">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              Nuestros Planes
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Encuentra el plan perfecto para tu práctica legal, con opciones flexibles que se adaptan a tus necesidades
-            </p>
-          </div>
-        </AnimatedSection>
+      <section className="py-16 bg-gray-50 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <AnimatedSection>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                Nuestros Planes
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Encuentra el plan perfecto para tu práctica legal, con opciones flexibles que se adaptan a tus necesidades
+              </p>
+            </div>
+          </AnimatedSection>
 
-        {/* Grid responsivo mejorado */}
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
-          {plans.map((plan, index) => (
-            <motion.div 
-              key={index} 
-              variants={itemVariants} 
-              className="flex h-full"
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-            >
-              {/* Tarjeta mejorada con altura uniforme */}
-              <div className={`w-full bg-white shadow-lg border border-gray-200 h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:border-prim-200 ${plan.isPopular ? 'ring-2 ring-prim-500 ring-offset-3' : ''}`}>
-                
-                
+          {/* Grid responsivo mejorado */}
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {plans.map((plan, index) => (
+              <motion.div 
+                key={index} 
+                variants={itemVariants} 
+                className="flex h-full relative"
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              >
                 {/* Badge para plan popular - Posicionado sobre el borde */}
                 {plan.isPopular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-prim-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-prim-500 text-white px-4 py-1 rounded-full text-sm font-medium z-10">
                     Más Popular
                   </div>
                 )}
 
-                {/* Header de la tarjeta - Ajustado para compensar el badge */}
-                <div className={`p-6 text-center border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 ${plan.isPopular ? 'pt-8' : ''}`}>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {plan.title}
-                  </h3>
-                  <div className="space-y-1">
-                    <p className="text-prim-600 font-medium text-base">
-                      {plan.subtitle}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {plan.subNote}
-                    </p>
+                {/* Tarjeta mejorada con altura uniforme */}
+                <div className={`w-full bg-white shadow-lg border border-gray-200 h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:border-prim-200 rounded-lg ${plan.isPopular ? 'ring-2 ring-prim-500 ring-offset-2' : ''}`}>
+                  
+                  {/* Header de la tarjeta - Ajustado para compensar el badge */}
+                  <div className={`p-6 text-center border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 rounded-t-lg ${plan.isPopular ? 'pt-8' : ''}`}>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      {plan.title}
+                    </h3>
+                    <div className="space-y-1">
+                      <p className="text-prim-600 font-medium text-base">
+                        {plan.subtitle}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        {plan.subNote}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Features con altura flexible pero uniforme y efectos hover */}
-                <div className="p-6 flex-grow">
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
-                      <motion.li 
-                        key={featureIndex} 
-                        className="flex items-start text-sm text-gray-600 cursor-default"
-                        whileHover={{ 
-                          x: 5,
-                          transition: { duration: 0.2 }
-                        }}
-                      >
-                        <motion.svg 
-                          className="w-4 h-4 text-prim-500 mt-0.5 mr-3 flex-shrink-0" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
+                  {/* Features con altura flexible pero uniforme y efectos hover */}
+                  <div className="p-6 flex-grow">
+                    <ul className="space-y-3">
+                      {plan.features.map((feature, featureIndex) => (
+                        <motion.li 
+                          key={featureIndex} 
+                          className="flex items-start text-sm text-gray-600 cursor-default"
                           whileHover={{ 
-                            scale: 1.2,
-                            transition: { duration: 0.3 }
+                            x: 5,
+                            transition: { duration: 0.2 }
                           }}
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </motion.svg>
-                        <span className="leading-relaxed hover:text-gray-800 transition-colors duration-200">{feature}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
+                          <motion.svg 
+                            className="w-4 h-4 text-prim-500 mt-0.5 mr-3 flex-shrink-0" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            whileHover={{ 
+                              scale: 1.2,
+                              transition: { duration: 0.3 }
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </motion.svg>
+                          <span className="leading-relaxed hover:text-gray-800 transition-colors duration-200">{feature}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </div>
 
-                {/* Footer con botón */}
-                <div className="p-6 pt-0">
-                  <button 
-                    className={`w-full ${plan.buttonColor} text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-prim-500 shadow-md hover:shadow-lg`}
-                    onClick={() => window.open(plan.link, '_blank')}
-                  >
-                    {plan.buttonText}
-                  </button>
+                  {/* Footer con botón */}
+                  <div className="p-6 pt-0">
+                    <button 
+                      className={`w-full ${plan.buttonColor} text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-prim-500 shadow-md hover:shadow-lg`}
+                      onClick={() => window.open(plan.link, '_blank')}
+                    >
+                      {plan.buttonText}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+        
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute -bottom-20 left-0 w-64 h-64 bg-prim-100 rounded-full -z-10 opacity-30 blur-xl"></div>
+        <div className="absolute top-20 right-0 w-48 h-48 bg-sec-100 rounded-full -z-10 opacity-30 blur-xl"></div>
       </section>
 
       {/* CTA con efecto de escala mejorado */}
@@ -2054,7 +2061,7 @@ const Coworking = () => {
         </div>
       </motion.section>
     </div>
-  );
+);
 };
 
 export default Coworking;
