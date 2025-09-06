@@ -75,12 +75,9 @@ const Home: React.FC = () => {
           transition={{ duration: 1 }}
           className="flex justify-center gap-4 flex-wrap"
         >
-          <button className="bg-white text-prim-500 font-semibold px-6 py-3 rounded-full hover:bg-prim-50 shadow transition">
-            Contacto
-          </button>
           <Link
             to="/turnos"
-            className="bg-prim-500 text-white font-semibold px-6 py-3 rounded-full hover:bg-prim-600 shadow transition"
+            className="bg-prim-500 text-white text-lg font-semibold px-6 py-3 rounded-full hover:bg-prim-600 shadow transition"
           >
             Pedir Turno
           </Link>
